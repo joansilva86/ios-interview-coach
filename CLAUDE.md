@@ -4,24 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Trainer** is an iOS interview coaching workspace for Joan Silva (Mobile Developer, 8+ years experience, targeting Semi-Senior Swift/iOS roles in Buenos Aires). This is not a traditional software project — it's a structured interview prep system with two complementary skills and evolving progress tracking.
+**Trainer** is an iOS interview coaching workspace for Joan Silva (Mobile Developer, 8+ years experience, targeting Semi-Senior Swift/iOS roles in Buenos Aires). This is not a traditional software project — it's a structured interview prep system with evolving progress tracking.
 
 **Read the entire project structure before starting any task.** Understanding the established patterns, session history, and Joan's specific learning needs is essential to providing effective coaching.
 
 ## Key Files and Their Purpose
 
-### Skills (Entry Points)
+### Skill (Entry Point)
 - **`ios-interview/SKILL.md`** — Conducts realistic iOS technical interview simulations. Joan is the interviewee, Claude asks questions with no mid-interview feedback.
   - Invoked via `/ios-interview` or "interview me"
   - Reads `linkedIn.txt` (candidate profile), `ios-interview/progress.md` (learning state), `interview.md` (current session log)
   - Outputs: question, classifies answers internally, at end delivers veredicto + detailed feedback
   - Delivery is rigorous (no praise mid-interview, feedback only at close)
-
-- **`ios-interviewee/SKILL.md`** — Reverse roleplay. Claude plays Joan (semi-senior iOS dev), user practices interviewer. Joan answers as himself would.
-  - Invoked via `/ios-interviewee` or "te entrevisto" (reverse interview in Spanish)
-  - Reads `linkedIn.txt` (profile), `joan_stories.md` (canonical STAR stories)
-  - Returns structured answers in first person, uses real stories when they match, plausibly invents details for scenarios not in CV
-  - Closes with brief debrief on what went well / weak / suggestions for next interview
 
 ### Progress & Session Logs
 - **`ios-interview/progress.md`** — Master record of learning. Updated at end of each interview session.
@@ -44,7 +38,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **`joan_stories.md`** — Canonical STAR stories for experience questions
   - One story per company: Comdata (Android, challenge), El Comercio (iOS, challenge), Planifi-K (iOS, challenge)
   - Each has Situation, Task, Action (Joan's specific decisions), Result (metrics)
-  - **When `/ios-interviewee` answers experience questions that match a saved story, use that exact version** (can extend with plausible details but maintain core facts)
   - **When `/ios-interview` asks experience questions, reference these stories to ground follow-ups** in Joan's real work
 
 ## Workflow: Conducting an Interview Session
@@ -137,12 +130,6 @@ Reference the full list in `ios-interview/SKILL.md` (line ~86+) for variety. Cov
 - **Auth & mobile security** (MFA, biometrics, Keychain, OAuth2/PKCE, token refresh) — **required by role**, must cover every session
 - **Autonomy / making decisions without asking permission** — company wants someone who can decide and defend, not "I'd ask the lead"
 - **Environments / staging** — dev/staging/prod separation, schemes, xcconfig, base URLs, risk of mixing
-
-## Language
-
-Joan is bilingual: **Spanish (native, Rioplatense: "vos", "tenés") and English (B2 Upper Intermediate)**. Respond in the language Joan initiates; if unclear, default to English for technical content but respect his preference.
-
-When he says "ahora vos sos el entrevistado" or "te entrevisto", switch to Spanish for `/ios-interviewee` roleplay. Use technical terms in English even in Spanish (e.g., `@StateObject`, `URLSession`, "retain cycle").
 
 ## Common Adjustments Across Sessions
 
