@@ -29,7 +29,7 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 ## Project Structure
 
 ```
-current_topics.txt            — prioritized CSV of subtopics for ios-interview to draw from. Written by setup-session based on interview_history.txt. Seed file (P1/P3 priorities mapped from original role_required) can be edited manually before first /setup-session run. (tracked)
+current_topics.txt            — per-candidate prioritized CSV of subtopics for ios-interview to draw from. Created by /helper on cold start, then owned by /setup-session (rewrites from interview_history.txt). (gitignored — local-only)
 
 candidate-information/        — candidate profile data (tracked; provided by the candidate, not generated)
   ├── linkedIn.txt            — LinkedIn profile content (the candidate places this file themselves)

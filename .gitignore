@@ -6,3 +6,6 @@
 
 # Personal session logs (local-only, not shared)
 logs/
+
+# Per-candidate topic list (created by /helper on cold start, owned by /setup-session)
+current_topics.txt
