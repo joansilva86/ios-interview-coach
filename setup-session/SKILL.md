@@ -82,6 +82,12 @@ category,subtopic,priority,notes
 - **Sort rows by priority** (P0 first, then P1, P2, P3), then by category alphabetically within each priority tier.
 - **Quote any field** containing commas or double quotes per CSV rules (RFC 4180).
 - **Do not include subtopics with no history data** — this skill only knows what's been practiced.
+- **Every `(category, subtopic)` row written must exist as a column in `topic_catalog.csv`.** History columns are already bounded by the catalog (save-progress validates that), so this is automatic — but if you ever see a mismatch, treat it as a catalog reconciliation bug and surface it instead of silently writing.
+- **Respect catalog flags** (row 3 of `topic_catalog.csv`):
+  - Skip subtopics flagged `ignore` or `deferred` — they don't appear in `current_topics.txt` regardless of their history.
+  - For `mastered` subtopics: cap at P3 (retention refresh) even if history would suggest higher priority. The user has marked them mastered for a reason.
+  - For `pending` subtopics: keep the priority derived from history, but append `"(catalog flag: pending review)"` to the `notes` column so the candidate is reminded.
+  - `active` subtopics: priority derived purely from history per the rules above.
 
 ## User-facing output (the only thing the candidate sees)
 

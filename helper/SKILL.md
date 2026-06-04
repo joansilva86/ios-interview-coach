@@ -58,37 +58,29 @@ When the candidate re-invokes the helper and both files are present, Branch 1 is
 
 If `current_topics.txt` does not exist or is empty (regardless of profile state):
 
-### Step 1: Create the file
+### Step 1: Seed from the catalog
 Tell the candidate:
-> "Creating an initial topic list for you. This will be the pool of topics the interviewer draws from in your first session."
+> "Creating an initial topic list seeded from `topic_catalog.csv`. This is the pool of topics the interviewer draws from in your first session."
 
-Write `current_topics.txt` (project root) with a balanced starter list. Use the standard schema:
+Read `topic_catalog.csv` (project root, tracked). It's a wide CSV with row 1 = topics, row 2 = subtopics, row 3 = flag (`active|pending|ignore|deferred|mastered`).
+
+Write `current_topics.txt` (project root) with one row per `(topic, subtopic)` pair from the catalog, **excluding** any column flagged `ignore` or `deferred`. Schema:
 
 ```csv
 category,subtopic,priority,notes
 ```
 
-**Default priority assignment**:
-- **P1 (High)** for role-critical topics: Security (Keychain, OAuth2, JWT, biometrics, token storage), Autonomy (ambiguous start, edge cases), Environments (dev/staging/prod separation)
-- **P2 (Medium)** for everything else — general iOS Semi-Senior topics
+**Default priority assignment** (apply at seed time, derived from the catalog flag):
+- **P1 (High)** for `active` topics under `Security`, `Autonomy`, or `Environments` (role-critical).
+- **P2 (Medium)** for every other `active` or `pending` topic. For `pending`, set `notes` to `"Flagged pending review in topic_catalog.csv"`.
+- **P3 (Low)** for `mastered` topics (retention refresh only).
+- Skip `ignore` and `deferred` entirely — they don't appear in `current_topics.txt`.
 
-**Categories to cover** (aim for ~3–6 subtopics per category):
-- Theory (SOLID, design patterns, TDD, code smells)
-- Swift Language (value vs reference, generics, protocols, some/any, error handling, property wrappers)
-- Memory & ARC (weak/unowned, retain cycles, capture lists)
-- Swift Concurrency (async/await, Task, cancellation, async let, TaskGroup, actors, @MainActor, Sendable)
-- Frameworks (SwiftUI state, view identity, performance, NavigationStack, UIKit, Combine)
-- Architecture (MVVM, MVI, Clean, Coordinator, DI, Repository vs Service)
-- Testing (XCTest, Swift Testing, mocks, snapshot, TDD)
-- DevOps / CI-CD (Bitbucket Pipelines, fastlane, code signing, TestFlight, SwiftLint)
-- Security (Keychain, OAuth2/PKCE, JWT, biometrics, token storage) — **P1**
-- Persistence (Core Data, SwiftData, UserDefaults, SQLite)
-- Networking (URLSession, Codable, retries, caching, token refresh)
-- System Design (paginated feed, offline-first, push notifications, deep linking)
-- Soft Skills (code reviews, mentoring, documentation, tech debt, estimation)
-- Trade-offs, Anti-patterns, Real Experience, What If, Autonomy, Environments
+No P0 at seed time — that emerges later from `/setup-session` based on session history.
 
-After writing, confirm: "✓ Created current_topics.txt with N topics (X P1, Y P2)."
+`notes` column starts empty for `active`/`mastered`; pre-filled for `pending` as noted above. `/setup-session` overwrites it as gaps surface in history.
+
+After writing, confirm: "✓ Created current_topics.txt with N topics (X P1, Y P2, Z P3), seeded from topic_catalog.csv. Skipped K ignored/deferred."
 
 ### Step 2: Continue
 Move to Branch 3 (everything is ready).

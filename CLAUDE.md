@@ -29,7 +29,9 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 ## Project Structure
 
 ```
-current_topics.txt            — per-candidate prioritized CSV of subtopics for ios-interview to draw from. Created by /helper on cold start, then owned by /setup-session (rewrites from interview_history.csv). (gitignored — local-only)
+topic_catalog.csv             — source of truth for what CAN be asked. Wide CSV: row 1 = topics, row 2 = subtopics, row 3 = flag (active|pending|ignore|deferred|mastered). Tracked. ios-interview must pick from this; save-progress rejects sessions referencing subtopics not in this catalog. Flag semantics: active=in scope, pending=in scope but flagged for review, ignore=permanently off, deferred=temporarily off, mastered=retention-refresh only.
+
+current_topics.txt            — per-candidate prioritized CSV of subtopics for ios-interview to draw from. MUST be a subset of topic_catalog.csv. Created by /helper on cold start (seeded from catalog), then owned by /setup-session (rewrites from interview_history.csv). (gitignored — local-only)
 
 candidate-information/        — candidate profile data (tracked; provided by the candidate, not generated)
   ├── linkedIn.txt            — LinkedIn profile content (the candidate places this file themselves)

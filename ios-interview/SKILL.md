@@ -30,16 +30,26 @@ This is a **conceptual/verbal** interview. **Never** ask the candidate to write,
 **MANDATORY before the first question**:
 
 1. Read `candidate-information/linkedIn.txt` — candidate profile, stack, experience, target role.
-2. Read `current_topics.txt` (project root) — **this is the source of truth for what topics to draw from**. The file is a CSV with columns: `category, subtopic, priority, notes`. The `priority` column reflects the candidate's current learning state (`/study-plan` writes this file). Use it to:
-   - Pick **4–6 subtopics** for today's session, mixing across categories for variety.
+2. Read `topic_catalog.csv` (project root) — **HARD BOUND, source of truth for what CAN be asked.** Wide CSV: row 1 = topics, row 2 = subtopics, row 3 = flag. Every question must reference a `(topic, subtopic)` pair that appears as a column in this file. Anything not in the catalog is off-limits.
+
+**Flag values in row 3** filter which columns are eligible for THIS session:
+- **`active`** — eligible. Pick freely.
+- **`pending`** — eligible but flagged for review. May pick; surface the count in the session announcement (e.g., "Note: 3 subtopics flagged `pending` — consider deciding about them").
+- **`mastered`** — eligible only as a retention refresh. Pick at most ONE per session, and only if there's room after `active`/`pending` topics are placed.
+- **`ignore`** — NEVER pick. Treat the column as if it didn't exist.
+- **`deferred`** — NEVER pick. Same as `ignore` for this session (the user marked it temporarily off).
+3. Read `current_topics.txt` (project root) — per-session **priority filter** on top of the catalog. The file is a CSV with columns: `category, subtopic, priority, notes`. The `priority` column reflects the candidate's current learning state (`/study-plan` writes this file). Use it to:
+   - Pick **4–6 subtopics** for today's session from the candidate's catalog subset, mixing across categories for variety.
    - **Prefer higher priority topics**: try to include all P0 (critical) topics first, then fill with P1 (high), then P2 (medium). Include a P3 (retention refresh) only if there's room and the candidate has a lot of stable knowledge to verify.
    - `notes` column contains the specific gap or reason for the priority (e.g., "Persistent gap: inverted definitions" or "Regressed from strong to weak"). Use these to ask sharper, targeted follow-ups.
 
-If `current_topics.txt` doesn't exist or is empty: fall back to the high-level category list below (Question categories section) and pick topics from your training knowledge. This is the bootstrap case before any `/study-plan` run.
+If `current_topics.txt` doesn't exist or is empty: pick 4–6 subtopics directly from `topic_catalog.csv`, balanced across categories. Bootstrap case before any `/setup-session` run.
 
-3. Announce in 1–2 lines: target role (from `linkedIn.txt`) and the 4–6 topics to cover today.
-4. Create/update `logs/current_interview.txt` with: date, role, level, topics to cover.
-5. Start with the first question. Don't wait for confirmation.
+If a `(topic, subtopic)` pair you'd like to ask isn't in the catalog: **don't ask it**. Pick a different angle from the catalog. The catalog is the bound; expand it manually if there's a real gap.
+
+4. Announce in 1–2 lines: target role (from `linkedIn.txt`) and the 4–6 topics to cover today.
+5. Create/update `logs/current_interview.txt` with: date, role, level, topics to cover. **Use the catalog's exact topic and subtopic names** in question headers (e.g., `### Q1 — Architecture / Repository Pattern`) — `save-progress` will reject the session if names don't match the catalog.
+6. Start with the first question. Don't wait for confirmation.
 
 ### 2. Question flow
 
