@@ -38,7 +38,7 @@ candidate-information/        — candidate profile data (tracked; provided by t
 
 logs/                         — personal session logs (gitignored)
   ├── current_interview.txt   — current/most recent session Q&A
-  └── interview_history.txt   — CSV: one row per (session, subtopic)
+  └── interview_history.txt   — wide CSV: 2 header rows (topic, subtopic) + one row per session; cells contain notes
 
 helper/                       — onboarding + workflow navigation
   └── SKILL.md

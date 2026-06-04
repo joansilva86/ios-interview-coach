@@ -19,28 +19,35 @@ For preparing topics for the next interview session, the candidate should use `/
 
 This skill reads **only one file**:
 
-- **`logs/interview_history.txt`** — CSV with one row per (session, subtopic). Schema: `session_date, session_id, topic, subtopic, confidence, questions_asked, on_point_count, notes`. The cumulative record of all past sessions.
+- **`logs/interview_history.txt`** — Wide/pivoted CSV with TWO header rows (topic row, then subtopic row with `session_date,session_id,...` prefix) and one row per session. Cells contain the notes text for that (session, subtopic), or are empty if the subtopic was not touched that session.
 
 This skill does **not** access any other file. No personal info, no topic list, no current session log.
 
-**If `logs/interview_history.txt` is missing or empty**: tell the candidate there's no history to analyze — they should run `/ios-interview` and `/save-progress` first. Then exit.
+**If `logs/interview_history.txt` is missing or empty** (header only, no data rows): tell the candidate there's no history to analyze — they should run `/ios-interview` and `/save-progress` first. Then exit.
+
+## Inferring confidence from notes (read-time)
+
+Confidence is **NOT stored** in the history file. You must infer it from the notes text in each cell by scanning for answer-category keywords:
+
+| Keywords in cell | Inferred confidence |
+|---|---|
+| Only "On Point" mentioned, no negative keywords | `strong` |
+| Mix of "On Point" and "Could Be Better", no Vague/Improvised/Don't Know | `ok` |
+| Any "Vague", "Improvised", "Don't Know" | `weak` |
+| Cell empty | not asked this session — skip when computing trend |
+
+If a cell is ambiguous (no answer-category keywords), default to `ok` and continue.
 
 ## Analysis logic
 
-For each subtopic in history, compute its trend by comparing rows across sessions:
+For each (topic, subtopic) column in history, walk the non-empty cells across sessions chronologically and compute its trend:
 
 ### Categorization
 
-- **Improvement**: confidence went from `weak`/`unknown` → `ok`/`strong` over 2+ sessions
+- **Improvement**: inferred confidence went from `weak` → `ok`/`strong` over 2+ sessions
 - **Persistent gap**: subtopic was `weak` in 3+ sessions in a row (current approach not working)
-- **Regression**: confidence went from `strong` → `ok`/`weak`, or `ok` → `weak` (recall is fading)
-- **Solid retention**: subtopic has been `strong` in 2+ recent sessions
-
-### Confidence priorities (for context, not for prioritizing the report)
-- `weak` / `unknown` → current gaps
-- `ok` → middle ground, may or may not be at risk
-- `strong` → retained
-- `skip` → excluded from analysis entirely (the candidate marked it intentionally)
+- **Regression**: inferred confidence went from `strong` → `ok`/`weak`, or `ok` → `weak` (recall is fading)
+- **Solid retention**: subtopic has been `strong` in 2+ recent non-empty cells
 
 ## Output format
 
@@ -55,12 +62,12 @@ Deliver a structured report. Use this exact format:
 (omit section if no improvements)
 
 ⚠️ Persistent gaps (3+ sessions weak)
-- [subtopic]: [brief description from the notes column]
+- [subtopic]: [brief description from the most recent notes cell]
 - ...
 (omit section if no persistent gaps)
 
 📉 Regressions
-- [subtopic]: [old confidence] → [new confidence] ([N sessions / weeks] since)
+- [subtopic]: [old confidence] → [new confidence] (N sessions since)
 - ...
 (omit section if no regressions)
 
@@ -76,7 +83,7 @@ For next session topic prep, run /setup-session.
 ## Content rules
 
 - **Concrete, not generic.** Use actual subtopic names from history, not categories.
-- **Quote notes from history** when describing gaps — anchor in real data, don't invent.
+- **Quote notes from cells** when describing gaps — anchor in real data, don't invent.
 - **Keep each bullet to one line.** No multi-line analysis per bullet.
 - **Omit empty sections.** If there are no regressions, don't include the heading.
 - **No recommendations or study tasks.** This skill is feedback only.
@@ -87,6 +94,6 @@ For next session topic prep, run /setup-session.
 - **Never read** any file other than `logs/interview_history.txt`.
 - **Never write or modify any file.** This is a pure analysis skill.
 - **Never deliver a verdict, recommendation, or study task list.** Trend feedback only.
-- **Never run** if `logs/interview_history.txt` is missing or empty.
-- **Never invent improvements, regressions, or retention claims** that aren't backed by rows in history.
+- **Never run** if `logs/interview_history.txt` is missing or empty (no data rows).
+- **Never invent improvements, regressions, or retention claims** that aren't backed by data in history.
 - **Never rewrite `current_topics.txt`** — that's `/setup-session`'s job.

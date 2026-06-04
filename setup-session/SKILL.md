@@ -19,33 +19,44 @@ For human-readable progress analysis (trends, regressions, retention), the candi
 
 This skill reads **only one file**:
 
-- **`logs/interview_history.txt`** — CSV with one row per (session, subtopic). Schema: `session_date, session_id, topic, subtopic, confidence, questions_asked, on_point_count, notes`. The cumulative record of all past sessions.
+- **`logs/interview_history.txt`** — Wide/pivoted CSV with TWO header rows (topic row, then subtopic row with `session_date,session_id,...` prefix) and one row per session. Cells contain the notes text for that (session, subtopic), or are empty if the subtopic was not touched that session.
 
 This skill does **not** access any other file. No personal info, no existing `current_topics.txt`, no current session log.
 
-**If `logs/interview_history.txt` is missing or empty**: tell the candidate there's no history to base topic prep on — they should run `/ios-interview` and `/save-progress` first. Do not write `current_topics.txt`.
+**If `logs/interview_history.txt` is missing or empty** (header only, no data rows): tell the candidate there's no history to base topic prep on — they should run `/ios-interview` and `/save-progress` first. Do not write `current_topics.txt`.
+
+## Inferring confidence from notes (read-time)
+
+Confidence is **NOT stored** in the history file. You must infer it from the notes text by scanning for answer-category keywords:
+
+| Keywords in cell | Inferred confidence |
+|---|---|
+| Only "On Point" mentioned, no negative keywords | `strong` |
+| Mix of "On Point" and "Could Be Better", no Vague/Improvised/Don't Know | `ok` |
+| Any "Vague", "Improvised", "Don't Know" | `weak` |
+| Cell empty | not asked this session — no signal |
+
+If a cell is ambiguous (no answer-category keywords), default to `ok` and continue.
 
 ## Prioritization logic
 
-For each subtopic in history, compute a priority tier:
+For each (topic, subtopic) column in history, walk the cells across sessions chronologically and compute a priority tier:
 
-### Confidence (most recent row per subtopic)
+### Confidence (most recent non-empty cell per subtopic)
 - **`weak`** → high priority
-- **`unknown`** → high priority (baseline never solidified)
-- **`ok`** → medium priority if eroding (older rows show `strong` → now `ok`)
-- **`strong`** → low priority unless 3+ weeks since last practice (retention check)
-- **`skip`** → exclude entirely; the candidate marked it intentionally
+- **`ok`** → medium priority if eroding (older cells `strong` → now `ok`)
+- **`strong`** → low priority unless 3+ sessions since last practice (retention check)
 
-### Recency / erosion (compare older rows to most recent)
+### Recency / erosion
 - Confidence **regressed** across sessions (`strong` → `weak`, `ok` → `weak`) → bump up one tier
 - Subtopic was `weak` in 3+ sessions in a row → bump to P0 (persistent gap)
 - Subtopic just covered in latest session and now `strong` → drop one tier (already retained)
 
 ### Priority tiers
 - **P0 (Critical)**: persistent gap (3+ sessions weak) OR significant regression (`strong` → `weak`)
-- **P1 (High)**: currently `weak` or `unknown` (single occurrence) OR mild regression (`strong` → `ok`)
+- **P1 (High)**: currently `weak` (single occurrence) OR mild regression (`strong` → `ok`)
 - **P2 (Medium)**: `ok` with notes indicating gaps
-- **P3 (Low)**: `strong` retention refresh after 3+ weeks of no practice
+- **P3 (Low)**: `strong` retention refresh after 3+ sessions of no practice
 
 ## Output (silent file write)
 
@@ -59,18 +70,18 @@ category,subtopic,priority,notes
 
 | Column | Description |
 |--------|-------------|
-| `category` | High-level topic group (e.g., "Architecture", "Swift Language", "Security") — taken from the `topic` column in history |
-| `subtopic` | Specific topic (taken from `subtopic` column in history) |
+| `category` | Topic group taken from the topic header row of history |
+| `subtopic` | Subtopic taken from the subtopic header row of history |
 | `priority` | `P0` \| `P1` \| `P2` \| `P3` — derived from the prioritization logic above |
 | `notes` | Short description of why it's prioritized (e.g., "Persistent gap: inverted definitions in 3 sessions" or "Regressed from strong to weak") |
 
 ### Write rules
 
 - **Replace the entire file** with the new content (overwrite, not append).
-- **One row per subtopic** that has been practiced at least once. Subtopics with confidence `skip` are excluded entirely.
+- **One row per (topic, subtopic) column** that has at least one non-empty cell in history.
 - **Sort rows by priority** (P0 first, then P1, P2, P3), then by category alphabetically within each priority tier.
 - **Quote any field** containing commas or double quotes per CSV rules (RFC 4180).
-- **Do not include topics that haven't been practiced** — this skill only knows what's in history.
+- **Do not include subtopics with no history data** — this skill only knows what's been practiced.
 
 ## User-facing output (the only thing the candidate sees)
 
@@ -98,5 +109,5 @@ That's it. **No analysis, no regression details, no recommendations, no commenta
 - **Never preserve** the old `current_topics.txt` content — this skill owns that file. Replace, don't merge.
 - **Never include subtopics not in history** in `current_topics.txt`. If the candidate wants to add a topic that hasn't been practiced yet, they edit the file manually.
 - **Never deliver a verdict or recommendation.**
-- **Never run** if `logs/interview_history.txt` is missing or empty.
-- **Never invent priority decisions** that aren't backed by rows in history.
+- **Never run** if `logs/interview_history.txt` is missing or empty (no data rows).
+- **Never invent priority decisions** that aren't backed by data in history.
