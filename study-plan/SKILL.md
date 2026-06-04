@@ -2,7 +2,7 @@
 name: study-plan
 description: >
   Generates a prioritized, actionable study plan for the candidate between
-  interview sessions. Reads logs/progress.txt (learning state), logs/interview.txt
+  interview sessions. Reads logs/interview_history.txt (learning state), logs/current_interview.txt
   (most recent session), and candidate-information/linkedIn.txt (target role requirements). Outputs
   concrete time-boxed study tasks ordered by priority (role-required + weak
   topics first).
@@ -18,14 +18,14 @@ You are generating an actionable study plan for the candidate to follow **betwee
 ## When this skill runs
 
 - Standalone, not tied to a session. The candidate can invoke it any time.
-- Typical cadence: after a session closes (when `logs/progress.txt` has fresh data), or before a planned study block.
+- Typical cadence: after a session closes (when `logs/interview_history.txt` has fresh data), or before a planned study block.
 - Output is a study plan — not coaching feedback during an interview.
 
 ## Mandatory inputs (read in order)
 
 1. **`candidate-information/linkedIn.txt`** — Candidate profile, target role, required skills. Determines which topics are **role-required** (must-cover) vs nice-to-have.
-2. **`logs/progress.txt`** — Topic mastery table + session history. Source of truth for what's `weak` / `unknown` / `strong` / `ok`, and what the "Next session focus" was at last close.
-3. **`logs/interview.txt`** — Most recent session's Q&A and patterns observed. Identifies fresh gaps not yet reflected in progress.txt's table.
+2. **`logs/interview_history.txt`** — Topic mastery table + session history. Source of truth for what's `weak` / `unknown` / `strong` / `ok`, and what the "Next session focus" was at last close.
+3. **`logs/current_interview.txt`** — Most recent session's Q&A and patterns observed. Identifies fresh gaps not yet reflected in `interview_history.txt`'s table.
 
 If any of these are missing, say so and proceed with what's available.
 
@@ -38,7 +38,7 @@ Rank topics by a combination of three signals:
 - **Medium**: relevant to the level but not role-specific
 - **Low**: nice-to-have for general seniority but not critical
 
-### 2. Confidence gap (from `logs/progress.txt`)
+### 2. Confidence gap (from `logs/interview_history.txt`)
 - **`unknown`** (baseline never measured) → high priority if role-critical, otherwise medium
 - **`weak`** → high priority always
 - **`ok`** → medium priority if it's eroding (was `strong` in earlier session, now `ok`)
@@ -72,7 +72,7 @@ Structure the plan as follows:
 For each topic:
 ### [Topic name]
 - **Why it's P0**: [role-required / persistent gap / both]
-- **Current state**: [quote from logs/progress.txt — e.g., "weak; couldn't recall kSecAttrAccessible values"]
+- **Current state**: [quote from logs/interview_history.txt — e.g., "weak; couldn't recall kSecAttrAccessible values"]
 - **Concrete actions**:
   1. [Specific action — e.g., "Write a custom @Clamped property wrapper from scratch (no reference)"]
   2. [Specific action — e.g., "Read Apple's Keychain Services docs section on access controls"]
@@ -129,7 +129,7 @@ Use these buckets, don't over-precise:
 
 - **Direct, actionable, no fluff.** This is a study plan, not coaching.
 - **Total length**: ~1-2 pages max. If longer, you're listing too many topics.
-- **Quote logs/progress.txt** when stating "current state" — anchors recommendations in real session data, not generic advice.
+- **Quote logs/interview_history.txt** when stating "current state" — anchors recommendations in real session data, not generic advice.
 - **Don't recommend interview practice** — that's what `ios-interview` is for. This skill is for **between-session study**.
 
 ## Closing

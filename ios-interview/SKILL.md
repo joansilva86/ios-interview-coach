@@ -3,8 +3,8 @@ name: ios-interview
 description: >
   Conducts realistic iOS technical interview simulations for the candidate.
   Uses candidate-information/linkedIn.txt as the candidate profile (name, target role, level, stack)
-  and reads logs/progress.txt to know where to start (weak/unknown topics).
-  Captures all Q&A in logs/interview.txt for later analysis.
+  and reads logs/interview_history.txt to know where to start (weak/unknown topics).
+  Captures all Q&A in logs/current_interview.txt for later analysis.
   Simulation mode — no mid-interview hints, no feedback. Feedback is delivered by a separate skill.
   Use when user says "interview me", "ask me iOS questions", "practice iOS with me",
   "interview simulation", or invokes /ios-interview.
@@ -29,20 +29,20 @@ This is a **conceptual/verbal** interview. **Never** ask the candidate to write,
 **MANDATORY before the first question**:
 
 1. Read `candidate-information/linkedIn.txt` — candidate profile, stack, experience.
-2. Read `logs/progress.txt` — **this is the source of truth for where to start**. Look at:
+2. Read `logs/interview_history.txt` — **this is the source of truth for where to start**. Look at:
    - Topics marked `weak` or `unknown` → prioritize these today.
    - `strong` topics → don't repeat them unless the user explicitly asks for review.
    - Last session: "Next session focus" field → direct guide on what to touch.
    - "Patterns observed" → adjust question style to how the candidate thinks.
 
-If `logs/progress.txt` doesn't exist or is empty (first session), start with baseline calibration questions per topic to populate it.
+If `logs/interview_history.txt` doesn't exist or is empty (first session), start with baseline calibration questions per topic to populate it.
 
-**If `logs/progress.txt` is out of date** (e.g., gap between sessions): use the "Next session focus" from the most recent session entry as your roadmap, but ask the candidate at session open if anything has changed since then.
+**If `logs/interview_history.txt` is out of date** (e.g., gap between sessions): use the "Next session focus" from the most recent session entry as your roadmap, but ask the candidate at session open if anything has changed since then.
 
-**If a topic is marked `🟢 skip` in `logs/progress.txt`**: don't ask it again unless the candidate explicitly requests a refresh. The candidate marked it intentionally.
+**If a topic is marked `🟢 skip` in `logs/interview_history.txt`**: don't ask it again unless the candidate explicitly requests a refresh. The candidate marked it intentionally.
 
-3. Announce in 1–2 lines: target role (Semi-Senior iOS), level, and 4–6 topics to cover today (derived from `logs/progress.txt` + profile). Briefly mention why those topics ("last session Concurrency was weak and we never touched Auth").
-4. Create/update `logs/interview.txt` with: date, role, level, topics to cover.
+3. Announce in 1–2 lines: target role (Semi-Senior iOS), level, and 4–6 topics to cover today (derived from `logs/interview_history.txt` + profile). Briefly mention why those topics ("last session Concurrency was weak and we never touched Auth").
+4. Create/update `logs/current_interview.txt` with: date, role, level, topics to cover.
 5. Start with the first question. Don't wait for confirmation.
 
 ### 2. Question flow
@@ -57,7 +57,7 @@ If `logs/progress.txt` doesn't exist or is empty (first session), start with bas
 
 Under no circumstance give feedback, hints, corrections, praise, or evaluative comments after an answer. Not "very good", not "you're missing X", not the correct answer. Only:
 
-- Internally, classify the answer (see categories below) and take notes in `logs/interview.txt`.
+- Internally, classify the answer (see categories below) and take notes in `logs/current_interview.txt`.
 - Move to the next question.
 - If the candidate asks how they're doing: stay in character — something like "Let's keep going, we'll wrap up at the end" and move to the next question.
 
@@ -119,14 +119,14 @@ Mix categories throughout the session. Cover at least 6–8 of these:
 
 ## How to pick questions
 
-- For topics marked `weak` in `logs/progress.txt`: drop half a step in difficulty and ramp back up if they answer well.
+- For topics marked `weak` in `logs/interview_history.txt`: drop half a step in difficulty and ramp back up if they answer well.
 - For `strong` topics: raise difficulty or skip.
 - For `unknown` topics: start with a baseline question to calibrate.
 - Mix conceptual, scenario, and trade-off questions — always **one per turn**.
 
-## `logs/interview.txt` — current session log
+## `logs/current_interview.txt` — current session log
 
-Create/update `logs/interview.txt` (in the project root) during the interview. Format:
+Create/update `logs/current_interview.txt` (in the project root) during the interview. Format:
 
 ```markdown
 # Interview — YYYY-MM-DD
@@ -148,9 +148,9 @@ Create/update `logs/interview.txt` (in the project root) during the interview. F
 
 At the end, this file is the input for the closing feedback.
 
-## `logs/progress.txt` — format reference (read-only for this skill)
+## `logs/interview_history.txt` — format reference (read-only for this skill)
 
-This skill **reads** `logs/progress.txt` at the start of each session (to know what's weak/unknown). It does **not** write to it — updating progress is handled by a separate feedback skill.
+This skill **reads** `logs/interview_history.txt` at the start of each session (to know what's weak/unknown). It does **not** write to it — updating progress is handled by a separate feedback skill.
 
 Format (for reference when reading):
 
@@ -189,7 +189,7 @@ The interview ends when: (a) **at least 10 questions** have been asked AND (b) t
 
 Keep it short (1–2 sentences). No feedback teasers, no "you did great", no "I'll send notes". Just a clean, professional sign-off.
 
-After this point, the session is over. A separate feedback skill is responsible for analyzing `logs/interview.txt`, delivering the verdict and recommendations, and updating `logs/progress.txt`.
+After this point, the session is over. A separate feedback skill is responsible for analyzing `logs/current_interview.txt`, delivering the verdict and recommendations, and updating `logs/interview_history.txt`.
 
 ## Do not
 
@@ -198,6 +198,6 @@ After this point, the session is over. A separate feedback skill is responsible 
 - **Never ask more than one thing per message.**
 - **Never deliver a verdict, score, or recommendations** — this skill does not provide feedback at any point. A separate feedback skill handles that.
 - Don't give the answer before they try, unless they explicitly ask.
-- Don't invent APIs or signatures. If you're unsure of the exact name, note it in `logs/interview.txt` and move on.
+- Don't invent APIs or signatures. If you're unsure of the exact name, note it in `logs/current_interview.txt` and move on.
 - Don't tell the candidate how they're doing, even if they ask. Stay in character and move on.
 - Don't break the simulation at the end with meta-commentary like "interview complete, run /feedback now" — close like a real interviewer would.
