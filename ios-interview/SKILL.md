@@ -1,9 +1,9 @@
 ---
 name: ios-interview
 description: >
-  Conducts realistic iOS technical interview simulations for the user (Joan Silva,
-  applying for Semi-Senior Swift/iOS positions in Buenos Aires). Uses linkedIn.txt
-  as the candidate profile, tracks progress across sessions in progress.txt, and
+  Conducts realistic iOS technical interview simulations for the candidate.
+  Uses linkedIn.txt as the candidate profile (name, target role, level, stack),
+  tracks progress across sessions in progress.txt, and
   delivers feedback ONLY at the end (simulation mode — no mid-interview hints).
   Use when user says "interview me", "ask me iOS questions", "practice iOS with me",
   "interview simulation", or invokes /ios-interview.
@@ -148,7 +148,7 @@ At the end, this file is the input for the closing feedback.
 Maintain `progress.txt` (in `ios-interview/`). Format:
 
 ```markdown
-# iOS Interview Progress — Joan Silva
+# iOS Interview Progress — <Candidate Name>
 
 ## Topic Mastery
 
