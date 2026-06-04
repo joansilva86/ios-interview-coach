@@ -2,10 +2,10 @@
 name: study-plan
 description: >
   Generates a prioritized, actionable study plan for the candidate between
-  interview sessions. Reads logs/interview_history.txt (learning state), logs/current_interview.txt
-  (most recent session), and current_topics.txt (role_required flag for criticality). Outputs
-  concrete time-boxed study tasks ordered by priority (role-required + weak
-  topics first).
+  interview sessions. Reads ONLY logs/interview_history.txt — the cumulative
+  history of all past sessions in CSV format. Outputs concrete time-boxed
+  study tasks ordered by priority (weak topics first, with regressions and
+  persistent gaps prioritized).
   Use when the candidate says "what should I study?", "give me a study plan",
   "what to focus on between sessions", "study recommendations", or invokes
   /study-plan.
@@ -21,43 +21,43 @@ You are generating an actionable study plan for the candidate to follow **betwee
 - Typical cadence: after a session closes (when `logs/interview_history.txt` has fresh data), or before a planned study block.
 - Output is a study plan — not coaching feedback during an interview.
 
-## Mandatory inputs (read in order)
+## Mandatory inputs
 
-This skill does **not** access any candidate personal information (no `linkedIn.txt`, no `candidate_stories.md`). It works purely from session data and the topic list.
+This skill reads **only one file**:
 
-1. **`current_topics.txt`** (project root) — CSV with `category, subtopic, role_required, notes`. Use the `role_required` column to determine which topics are **must-cover** for the target role vs nice-to-have.
-2. **`logs/interview_history.txt`** — CSV with one row per (session, subtopic). Source of truth for what's `weak` / `unknown` / `strong` / `ok` / `skip`. To get the current state of a subtopic, take the most recent row for it (highest `session_date`). Use older rows to detect trends and regressions across sessions.
-3. **`logs/current_interview.txt`** — Most recent session's Q&A and patterns observed. Identifies fresh gaps not yet reflected in `interview_history.txt`'s table.
+- **`logs/interview_history.txt`** — CSV with one row per (session, subtopic). Schema: `session_date, session_id, topic, subtopic, confidence, questions_asked, on_point_count, notes`. The cumulative record of all past sessions.
 
-If any of these are missing, say so and proceed with what's available.
+This skill does **not** access:
+- Any candidate personal information (no `linkedIn.txt`, no `candidate_stories.md`)
+- The topic list (`current_topics.txt`) — works purely from what's been practiced
+- The current session log (`current_interview.txt`) — assumes the latest session has already been appended to history via `/save-progress`
+
+**Workflow expectation**: run `/save-progress` first after a session to persist the latest data, then `/study-plan` to generate recommendations based on the updated history.
+
+**If `logs/interview_history.txt` is missing or empty**: tell the user there's no history to base a plan on — they should run an interview session and save progress first.
 
 ## Prioritization logic
 
-Rank topics by a combination of three signals:
+Rank topics by two signals derived from `interview_history.txt`:
 
-### 1. Role criticality (from `current_topics.txt`'s `role_required` column)
-- **High**: explicitly required by the target role (e.g., "MFA", "security", "Keychain" for an auth-focused role)
-- **Medium**: relevant to the level but not role-specific
-- **Low**: nice-to-have for general seniority but not critical
-
-### 2. Confidence gap (from `logs/interview_history.txt`)
-- **`unknown`** (baseline never measured) → high priority if role-critical, otherwise medium
-- **`weak`** → high priority always
-- **`ok`** → medium priority if it's eroding (look at older rows for that subtopic — was `strong` in earlier session, now `ok`?)
+### 1. Confidence gap (current state, most recent row per subtopic)
+- **`weak`** → high priority
+- **`unknown`** → high priority (baseline never solidified)
+- **`ok`** → medium priority if eroding (was `strong` in an earlier row, now `ok`)
 - **`strong`** → skip unless 3+ weeks since last practice (retention check via the most recent `session_date`)
 - **`skip`** → do not include in the plan; the user marked it intentionally
 
-### 3. Recency / erosion (from session history)
-- Topic was `strong` 2+ sessions ago but degraded → high priority (recall is fading)
-- Topic was identified weak 3+ sessions in a row → high priority (persistent gap, needs new approach)
-- Topic was just covered last session and went well → skip this cycle
+### 2. Recency / erosion (compare older rows to the most recent row for each subtopic)
+- Confidence **regressed** across sessions (e.g., `strong` → `weak`, `ok` → `weak`) → high priority (recall is fading)
+- Subtopic appeared as `weak` in 3+ sessions in a row → high priority (persistent gap — current approach isn't working, needs a different angle)
+- Subtopic was just covered in the latest session and is now `strong` → skip this cycle (already retained)
 
 Combine into a 4-tier priority:
 
-- **P0 (Critical)**: role-required + weak/unknown, OR persistent gap (3+ sessions weak)
-- **P1 (High)**: weak + medium role-relevance, OR eroding from strong → ok
-- **P2 (Medium)**: ok with detected nuance gaps, OR unknown but lower role-relevance
-- **P3 (Low)**: strong but retention refresh needed
+- **P0 (Critical)**: persistent gap (3+ sessions weak) OR significant regression (`strong` → `weak`)
+- **P1 (High)**: currently `weak` or `unknown` (single occurrence) OR mild regression (`strong` → `ok`)
+- **P2 (Medium)**: `ok` with notes indicating gaps, OR returning to `weak` after recent improvement
+- **P3 (Low)**: `strong` retention refresh after 3+ weeks of no practice
 
 ## Output format
 
@@ -74,7 +74,7 @@ Structure the plan as follows:
 ## P0 — Critical (do these first)
 For each topic:
 ### [Topic name]
-- **Why it's P0**: [role-required / persistent gap / both]
+- **Why it's P0**: [persistent gap / significant regression / both]
 - **Current state**: [quote from logs/interview_history.txt — e.g., "weak; couldn't recall kSecAttrAccessible values"]
 - **Concrete actions**:
   1. [Specific action — e.g., "Write a custom @Clamped property wrapper from scratch (no reference)"]
