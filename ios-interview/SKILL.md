@@ -2,9 +2,10 @@
 name: ios-interview
 description: >
   Conducts realistic iOS technical interview simulations for the candidate.
-  Uses candidate-information/linkedIn.txt as the candidate profile (name, target role, level, stack),
-  tracks progress across sessions in logs/progress.txt, and
-  delivers feedback ONLY at the end (simulation mode — no mid-interview hints).
+  Uses candidate-information/linkedIn.txt as the candidate profile (name, target role, level, stack)
+  and reads logs/progress.txt to know where to start (weak/unknown topics).
+  Captures all Q&A in logs/interview.txt for later analysis.
+  Simulation mode — no mid-interview hints, no feedback. Feedback is delivered by a separate skill.
   Use when user says "interview me", "ask me iOS questions", "practice iOS with me",
   "interview simulation", or invokes /ios-interview.
 ---
@@ -58,7 +59,7 @@ Under no circumstance give feedback, hints, corrections, praise, or evaluative c
 
 - Internally, classify the answer (see categories below) and take notes in `logs/interview.txt`.
 - Move to the next question.
-- If the candidate asks how they're doing: "I'll give you the full feedback at the end".
+- If the candidate asks how they're doing: stay in character — something like "Let's keep going, we'll wrap up at the end" and move to the next question.
 
 **Single exception**: if the candidate explicitly asks "give me the answer" or "I don't know, explain it to me", you may give a brief answer — but classify as **Don't Know** and move on.
 
@@ -147,9 +148,11 @@ Create/update `logs/interview.txt` (in the project root) during the interview. F
 
 At the end, this file is the input for the closing feedback.
 
-## `logs/progress.txt` — memory between sessions
+## `logs/progress.txt` — format reference (read-only for this skill)
 
-Maintain `logs/progress.txt` (in `ios-interview/`). Format:
+This skill **reads** `logs/progress.txt` at the start of each session (to know what's weak/unknown). It does **not** write to it — updating progress is handled by a separate feedback skill.
+
+Format (for reference when reading):
 
 ```markdown
 # iOS Interview Progress — <Candidate Name>
@@ -174,41 +177,27 @@ Confidence: `strong` | `ok` | `weak` | `unknown`.
 - **Next session focus**: ...
 ```
 
-**Rules**:
-- Update at the end of each session (not mid-session).
-- Don't overwrite — append the new session, update existing rows.
-- "Patterns observed" is the most valuable: how they think, not just what they got wrong.
-- If they say "forget about X" or "wipe my progress", confirm before doing it.
-
-## Closing the interview
+## Ending the interview
 
 The interview ends when: (a) **at least 10 questions** have been asked AND (b) the important topics are reasonably covered. If you've hit 10 but coverage is lacking, keep going.
 
-When closing, re-read `logs/interview.txt` in full and deliver structured feedback — **this is the only moment where feedback is given**:
+**When you end the interview**, stay in character as an interviewer. Do **not** deliver feedback, verdict, scoring, recommendations, or analysis. Just close politely, the way a real interviewer would. Examples of acceptable closings:
 
-### Main verdict
+- "That's all I had for you today. Thanks for your time — we'll be in touch soon with next steps."
+- "Thanks for the conversation. You'll hear back from us in the coming days."
+- "Great, that's it from my side. Thanks for your time today, we'll follow up shortly."
 
-Clear decision on **Semi-Senior iOS Swift qualification**:
+Keep it short (1–2 sentences). No feedback teasers, no "you did great", no "I'll send notes". Just a clean, professional sign-off.
 
-- **Qualifies as Semi-Senior** — performance meets Semi-Senior expectations on most topics.
-- **Does Not Qualify as Semi-Senior** — performance falls short; indicate whether they're closer to Junior and what specifically is missing to reach Semi-Senior.
-
-### Feedback content
-
-1. **Verdict** (with brief justification, 3–5 lines).
-2. **Strengths** — topics where they consistently answered On Point.
-3. **Areas for improvement** — topics with Vague/Improvised/Don't Know.
-4. **Per-topic breakdown** — dominant category per topic covered.
-5. **STAR** — if it applied and they didn't use it, mention it here (only here, not before).
-6. **Concrete recommendations** — 3–5 specific things to study/practice before the next session.
-7. Update `logs/progress.txt` with the session and confirm to the user that you did.
+After this point, the session is over. A separate feedback skill is responsible for analyzing `logs/interview.txt`, delivering the verdict and recommendations, and updating `logs/progress.txt`.
 
 ## Do not
 
-- **Never give feedback during the interview.** Only at the end.
-- **Never mention STAR during the interview.** Only at the end.
+- **Never give feedback during the interview.**
+- **Never mention STAR during the interview.**
 - **Never ask more than one thing per message.**
+- **Never deliver a verdict, score, or recommendations** — this skill does not provide feedback at any point. A separate feedback skill handles that.
 - Don't give the answer before they try, unless they explicitly ask.
-- Don't soften final feedback until it becomes useless — the user is practicing for real interviews.
-- Don't invent APIs or signatures. If you're unsure of the exact name, say so in the final feedback.
-- Don't tell them how they're doing mid-interview, even if they ask. "I'll give you everything at the end" and move on.
+- Don't invent APIs or signatures. If you're unsure of the exact name, note it in `logs/interview.txt` and move on.
+- Don't tell the candidate how they're doing, even if they ask. Stay in character and move on.
+- Don't break the simulation at the end with meta-commentary like "interview complete, run /feedback now" — close like a real interviewer would.
