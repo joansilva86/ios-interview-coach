@@ -1,0 +1,107 @@
+category,subtopic,role_required,notes
+Theory,SOLID principles,no,5 principles with iOS examples
+Theory,Design patterns,no,GoF + when each applies
+Theory,TDD red-green-refactor,no,
+Theory,Code smells,no,
+Theory,Clean Code,no,
+Theory,Big O notation,no,
+Theory,DRY / KISS / YAGNI,no,
+Theory,Concurrency vs parallelism,no,
+Theory,Idempotency,no,
+Theory,ACID vs BASE,no,
+Swift Language,Value vs reference types,no,
+Swift Language,Generics,no,
+Swift Language,Protocols and associated types,no,
+Swift Language,some vs any,no,opaque vs existential
+Swift Language,Result type,no,
+Swift Language,Error handling,no,throws / Result / Optional decision
+Swift Language,Property wrappers,no,wrappedValue / projectedValue mechanism
+Swift Language,Closures and escaping,no,
+Swift Language,Key paths,no,
+Memory & ARC,weak vs unowned,no,
+Memory & ARC,Retain cycles,no,closures / delegates / parent-child
+Memory & ARC,Capture lists,no,
+Swift Concurrency,async/await,no,
+Swift Concurrency,Task and Task.detached,no,
+Swift Concurrency,Task cancellation,no,cooperative cancellation
+Swift Concurrency,async let,no,
+Swift Concurrency,TaskGroup,no,
+Swift Concurrency,Continuations,no,withCheckedContinuation
+Swift Concurrency,Actors and @MainActor,no,
+Swift Concurrency,Sendable,no,
+Frameworks,SwiftUI state,no,@State / @Binding / @StateObject / @ObservedObject / @EnvironmentObject
+Frameworks,SwiftUI view identity,no,
+Frameworks,SwiftUI performance,no,"List, LazyVStack, .equatable"
+Frameworks,NavigationStack,no,
+Frameworks,UIKit lifecycle,no,
+Frameworks,Combine basics,no,
+Frameworks,Combine vs async/await,no,
+Architecture,MVVM,no,
+Architecture,MVI vs MVVM,no,
+Architecture,Clean Architecture,no,
+Architecture,Coordinator pattern,no,
+Architecture,Dependency Injection,no,
+Architecture,Repository vs Service vs UseCase,no,
+Architecture,SwiftUI navigation patterns,no,
+Testing,XCTest basics,no,
+Testing,Swift Testing syntax,no,@Test / #expect / async throws
+Testing,Async tests,no,
+Testing,Mocks / Stubs / Spies / Fakes,no,
+Testing,Snapshot testing,no,
+Testing,TDD what to test,no,
+Testing,Test coverage,no,
+DevOps / CI-CD,Bitbucket Pipelines,no,
+DevOps / CI-CD,Fastlane,no,
+DevOps / CI-CD,Code signing,no,
+DevOps / CI-CD,TestFlight,no,"internal vs external, build expiration"
+DevOps / CI-CD,SwiftLint,no,
+Security,Keychain accessibility,yes,kSecAttrAccessible values
+Security,Keychain + Secure Enclave,yes,
+Security,Biometric authentication,yes,LocalAuthentication / Face ID / Touch ID
+Security,OAuth2 + PKCE,yes,authorization code flow for mobile
+Security,JWT,yes,"HS256 vs RS256, alg none, refresh rotation"
+Security,Token storage,yes,access vs refresh distinction
+Security,OWASP MASVS,yes,
+Security,Certificate pinning,yes,
+Security,Deep link validation,yes,
+Security,Screenshot prevention,no,
+Persistence,Core Data contexts,no,"merge policies, background work"
+Persistence,SwiftData basics,no,
+Persistence,UserDefaults pitfalls,no,when NOT to use
+Persistence,SQLite basics,no,
+Persistence,Database indexing,no,
+Networking,URLSession,no,
+Networking,Codable,no,
+Networking,Network error handling,no,
+Networking,Retries with backoff,no,
+Networking,Caching strategies,no,
+Networking,Token refresh,no,
+System Design,Paginated feed,no,
+System Design,Offline-first + sync,no,
+System Design,Push notifications,no,
+System Design,Deep linking,no,
+System Design,Real-time chat,no,
+Soft Skills,Code reviews,no,what to look for / how to give feedback
+Soft Skills,Mentoring juniors,no,
+Soft Skills,Documentation,no,
+Soft Skills,Tech debt prioritization,no,
+Soft Skills,Estimation,no,story points / Fibonacci / spikes
+Trade-offs,UIKit vs SwiftUI,no,
+Trade-offs,Core Data vs SwiftData,no,
+Trade-offs,MVVM vs MVI,no,
+Anti-patterns,SwiftUI anti-patterns,no,
+Anti-patterns,Architecture anti-patterns,no,
+Anti-patterns,Concurrency anti-patterns,no,
+Real Experience,Most complex feature,no,
+Real Experience,Production incident,no,
+Real Experience,Mentoring story,no,
+What If,Endpoint is slow diagnosis,no,
+What If,Suspect memory leak,no,
+What If,Race condition in prod,no,
+What If,Critical bug Friday 6pm,yes,autonomy signal
+Autonomy,Ambiguous feature start,yes,decides without lead
+Autonomy,PO unavailable edge case,yes,defines behavior independently
+Autonomy,Critical decision under pressure,yes,
+Environments,Dev / staging / prod separation,yes,
+Environments,Schemes and xcconfig,yes,
+Environments,Risk of mixing environments,yes,

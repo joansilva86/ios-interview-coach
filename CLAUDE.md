@@ -25,13 +25,15 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 ## Project Structure
 
 ```
+current_topics.txt            — curated CSV of subtopics for ios-interview to draw from (tracked)
+
 candidate-information/        — candidate profile data (tracked)
   ├── linkedIn.txt            — CV / target role / stack
   └── candidate_stories.md    — canonical STAR stories for experience questions
 
 logs/                         — personal session logs (gitignored)
   ├── current_interview.txt   — current/most recent session Q&A
-  └── interview_history.txt   — topic mastery + session history
+  └── interview_history.txt   — CSV: one row per (session, subtopic)
 
 ios-interview/                — interview simulation skill
   └── SKILL.md

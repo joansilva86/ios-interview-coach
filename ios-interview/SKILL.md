@@ -3,9 +3,10 @@ name: ios-interview
 description: >
   Conducts realistic iOS technical interview simulations for the candidate.
   Uses candidate-information/linkedIn.txt as the candidate profile (name, target role, level, stack)
-  and reads logs/interview_history.txt to know where to start (weak/unknown topics).
+  and reads current_topics.txt (project root) for the curated pool of topics to draw from.
   Captures all Q&A in logs/current_interview.txt for later analysis.
   Simulation mode — no mid-interview hints, no feedback. Feedback is delivered by a separate skill.
+  Does NOT read interview_history.txt — this skill is stateless and doesn't track past sessions.
   Use when user says "interview me", "ask me iOS questions", "practice iOS with me",
   "interview simulation", or invokes /ios-interview.
 ---
@@ -28,22 +29,16 @@ This is a **conceptual/verbal** interview. **Never** ask the candidate to write,
 
 **MANDATORY before the first question**:
 
-1. Read `candidate-information/linkedIn.txt` — candidate profile, stack, experience.
-2. Read `logs/interview_history.txt` — **this is the source of truth for where to start**. The file is a CSV with one row per (session, subtopic). Look at:
-   - For each `subtopic`, find the **most recent row** (highest `session_date`). That row's `confidence` is the current state.
-   - Topics with current confidence `weak` or `unknown` → prioritize today.
-   - Topics with current confidence `strong` → don't repeat unless the user explicitly asks for review.
-   - Topics with current confidence `skip` → don't ask. The user marked them intentionally.
-   - Topics where confidence **regressed** across sessions (e.g., `strong` → `ok`, or `ok` → `weak`) → high priority (recall is fading).
-   - `notes` column may contain specific gaps observed in past sessions (e.g., "inverted definitions" or "doesn't know mechanism") — use these to ask sharper follow-ups.
+1. Read `candidate-information/linkedIn.txt` — candidate profile, stack, experience, target role.
+2. Read `current_topics.txt` (project root) — **this is the source of truth for what topics to draw from**. The file is a CSV with columns: `category, subtopic, role_required, notes`. Use it to:
+   - Pick **4–6 subtopics** for today's session, mixing across categories for variety (don't ask 4 Swift Language topics in a row).
+   - **Always include at least one `role_required = yes` topic** — these are critical for the target role.
+   - Rotate selection across sessions naturally — the skill is stateless, so just aim for a balanced mix.
+   - `notes` column may contain hints about what specifically to ask (e.g., "wrappedValue / projectedValue mechanism" for property wrappers).
 
-If `logs/interview_history.txt` doesn't exist or is empty (first session), start with baseline calibration questions per topic to populate it.
+If `current_topics.txt` doesn't exist or is empty: fall back to the high-level category list below (Question categories section) and pick topics from your training knowledge.
 
-**If `logs/interview_history.txt` is out of date** (e.g., gap between sessions): use the most recent session's weak/unknown topics as your roadmap, but ask the candidate at session open if anything has changed since then.
-
-**For the "next session focus"** (which topics to drill today): derive it from the CSV by listing topics with `weak` / `unknown` confidence and any regressions detected. If the candidate wants a pre-prepared study plan, they can invoke `/study-plan` separately — that skill produces between-session study tasks, not interview questions.
-
-3. Announce in 1–2 lines: target role (Semi-Senior iOS), level, and 4–6 topics to cover today (derived from `logs/interview_history.txt` + profile). Briefly mention why those topics ("last session Concurrency was weak and we never touched Auth").
+3. Announce in 1–2 lines: target role (from `linkedIn.txt`) and the 4–6 topics to cover today.
 4. Create/update `logs/current_interview.txt` with: date, role, level, topics to cover.
 5. Start with the first question. Don't wait for confirmation.
 
@@ -121,9 +116,9 @@ Mix categories throughout the session. Cover at least 6–8 of these:
 
 ## How to pick questions
 
-- For topics marked `weak` in `logs/interview_history.txt`: drop half a step in difficulty and ramp back up if they answer well.
-- For `strong` topics: raise difficulty or skip.
-- For `unknown` topics: start with a baseline question to calibrate.
+- Pick subtopics from `current_topics.txt`, mixing across categories for variety.
+- Always include at least one `role_required = yes` subtopic per session.
+- Start with a baseline question for any subtopic; ramp up difficulty if they answer well, drop down if they struggle.
 - Mix conceptual, scenario, and trade-off questions — always **one per turn**.
 
 ## `logs/current_interview.txt` — current session log
@@ -150,32 +145,6 @@ Create/update `logs/current_interview.txt` (in the project root) during the inte
 
 At the end, this file is the input for the closing feedback.
 
-## `logs/interview_history.txt` — format reference (read-only for this skill)
-
-This skill **reads** `logs/interview_history.txt` at the start of each session (to know what's weak/unknown). It does **not** write to it — that's handled by the `save-progress` skill.
-
-Format: standard CSV (RFC 4180). One row per (session, subtopic). Header on line 1.
-
-```csv
-session_date,session_id,topic,subtopic,confidence,questions_asked,on_point_count,notes
-2026-05-11,1,Swift Concurrency,async let,strong,1,1,"clear on parallel use"
-2026-05-11,1,Swift Concurrency,cancellation,weak,1,0,"confuses Task.isCancelled with throw CancellationError"
-2026-06-04,14,Architecture,Repo vs Service vs UseCase,weak,1,0,"Inverted definitions"
-2026-06-04,14,Design Patterns,Strategy,strong,1,1,"First own example from real experience"
-```
-
-**Columns**:
-- `session_date` — `YYYY-MM-DD`
-- `session_id` — incrementing session number
-- `topic` — high-level category (e.g., "Swift Language", "Architecture", "Security")
-- `subtopic` — specific topic (e.g., "some vs any", "MVVM Navigation")
-- `confidence` — `strong` | `ok` | `weak` | `unknown` | `skip`
-- `questions_asked` — number of questions this session about this subtopic
-- `on_point_count` — number of those answered On Point
-- `notes` — short description of gaps or strengths (quoted)
-
-**To find the current confidence for a subtopic**: filter rows for that `subtopic`, sort by `session_date` descending, take the first row. Older rows are kept for trend/regression detection.
-
 ## Ending the interview
 
 The interview ends when: (a) **at least 10 questions** have been asked AND (b) the important topics are reasonably covered. If you've hit 10 but coverage is lacking, keep going.
@@ -188,7 +157,7 @@ The interview ends when: (a) **at least 10 questions** have been asked AND (b) t
 
 Keep it short (1–2 sentences). No feedback teasers, no "you did great", no "I'll send notes". Just a clean, professional sign-off.
 
-After this point, the session is over. A separate feedback skill is responsible for analyzing `logs/current_interview.txt`, delivering the verdict and recommendations, and updating `logs/interview_history.txt`.
+After this point, the session is over. The `save-progress` skill persists the Q&A to `logs/interview_history.txt`, and a separate feedback skill (if invoked) handles verdict and recommendations.
 
 ## Do not
 

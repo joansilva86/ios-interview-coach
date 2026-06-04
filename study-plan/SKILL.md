@@ -3,7 +3,7 @@ name: study-plan
 description: >
   Generates a prioritized, actionable study plan for the candidate between
   interview sessions. Reads logs/interview_history.txt (learning state), logs/current_interview.txt
-  (most recent session), and candidate-information/linkedIn.txt (target role requirements). Outputs
+  (most recent session), and current_topics.txt (role_required flag for criticality). Outputs
   concrete time-boxed study tasks ordered by priority (role-required + weak
   topics first).
   Use when the candidate says "what should I study?", "give me a study plan",
@@ -23,7 +23,9 @@ You are generating an actionable study plan for the candidate to follow **betwee
 
 ## Mandatory inputs (read in order)
 
-1. **`candidate-information/linkedIn.txt`** — Candidate profile, target role, required skills. Determines which topics are **role-required** (must-cover) vs nice-to-have.
+This skill does **not** access any candidate personal information (no `linkedIn.txt`, no `candidate_stories.md`). It works purely from session data and the topic list.
+
+1. **`current_topics.txt`** (project root) — CSV with `category, subtopic, role_required, notes`. Use the `role_required` column to determine which topics are **must-cover** for the target role vs nice-to-have.
 2. **`logs/interview_history.txt`** — CSV with one row per (session, subtopic). Source of truth for what's `weak` / `unknown` / `strong` / `ok` / `skip`. To get the current state of a subtopic, take the most recent row for it (highest `session_date`). Use older rows to detect trends and regressions across sessions.
 3. **`logs/current_interview.txt`** — Most recent session's Q&A and patterns observed. Identifies fresh gaps not yet reflected in `interview_history.txt`'s table.
 
@@ -33,7 +35,7 @@ If any of these are missing, say so and proceed with what's available.
 
 Rank topics by a combination of three signals:
 
-### 1. Role criticality (from `candidate-information/linkedIn.txt`)
+### 1. Role criticality (from `current_topics.txt`'s `role_required` column)
 - **High**: explicitly required by the target role (e.g., "MFA", "security", "Keychain" for an auth-focused role)
 - **Medium**: relevant to the level but not role-specific
 - **Low**: nice-to-have for general seniority but not critical
