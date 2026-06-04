@@ -1,7 +1,7 @@
 ---
 name: setup-session
 description: >
-  Reads logs/interview_history.txt and rewrites current_topics.txt with a fresh
+  Reads logs/interview_history.csv and rewrites current_topics.txt with a fresh
   prioritized topic list for the next interview session. Pure file-write skill —
   no progress feedback, no analysis output, just a brief confirmation. For
   human-readable progress feedback, use /study-plan.
@@ -19,11 +19,11 @@ For human-readable progress analysis (trends, regressions, retention), the candi
 
 This skill reads **only one file**:
 
-- **`logs/interview_history.txt`** — Wide/pivoted CSV with TWO header rows (topic row, then subtopic row with `session_date,session_id,...` prefix) and one row per session. Cells contain the notes text for that (session, subtopic), or are empty if the subtopic was not touched that session.
+- **`logs/interview_history.csv`** — Wide/pivoted CSV with TWO header rows (topic row, then subtopic row with `session_date,session_id,...` prefix) and one row per session. Cells contain the notes text for that (session, subtopic), or are empty if the subtopic was not touched that session.
 
 This skill does **not** access any other file. No personal info, no existing `current_topics.txt`, no current session log.
 
-**If `logs/interview_history.txt` is missing or empty** (header only, no data rows): tell the candidate there's no history to base topic prep on — they should run `/ios-interview` and `/save-progress` first. Do not write `current_topics.txt`.
+**If `logs/interview_history.csv` is missing or empty** (header only, no data rows): tell the candidate there's no history to base topic prep on — they should run `/ios-interview` and `/save-progress` first. Do not write `current_topics.txt`.
 
 ## Inferring confidence from notes (read-time)
 
@@ -104,10 +104,10 @@ That's it. **No analysis, no regression details, no recommendations, no commenta
 
 ## Do not
 
-- **Never read** any file other than `logs/interview_history.txt`.
+- **Never read** any file other than `logs/interview_history.csv`.
 - **Never deliver progress feedback** — improvements, regressions, retention analysis. Those belong to `/study-plan`.
 - **Never preserve** the old `current_topics.txt` content — this skill owns that file. Replace, don't merge.
 - **Never include subtopics not in history** in `current_topics.txt`. If the candidate wants to add a topic that hasn't been practiced yet, they edit the file manually.
 - **Never deliver a verdict or recommendation.**
-- **Never run** if `logs/interview_history.txt` is missing or empty (no data rows).
+- **Never run** if `logs/interview_history.csv` is missing or empty (no data rows).
 - **Never invent priority decisions** that aren't backed by data in history.

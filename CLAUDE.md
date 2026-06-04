@@ -17,19 +17,19 @@ Candidate information lives in `candidate-information/`. Personal session logs l
   - Invoked via `/ios-interview` or "interview me"
   - See `ios-interview/SKILL.md` for the full workflow, question categories, calibration rules, and closing format.
 
-- **`save-progress/SKILL.md`** — Persists the most recent interview session into `logs/interview_history.txt`, then deletes `logs/current_interview.txt`. Save-only — no feedback, verdict, or analysis delivered to the user.
+- **`save-progress/SKILL.md`** — Persists the most recent interview session into `logs/interview_history.csv`, then deletes `logs/current_interview.txt`. Save-only — no feedback, verdict, or analysis delivered to the user.
   - Invoked via `/save-progress` or "save the session"
 
-- **`setup-session/SKILL.md`** — Reads `logs/interview_history.txt` and rewrites `current_topics.txt` with prioritized topics for the next interview. File-write only — no analysis, no feedback.
+- **`setup-session/SKILL.md`** — Reads `logs/interview_history.csv` and rewrites `current_topics.txt` with prioritized topics for the next interview. File-write only — no analysis, no feedback.
   - Invoked via `/setup-session` or "prepare topics for next session"
 
-- **`study-plan/SKILL.md`** — Reads `logs/interview_history.txt` and delivers progress feedback (improvements, persistent gaps, regressions, solid retention). Read-only — no file writes.
+- **`study-plan/SKILL.md`** — Reads `logs/interview_history.csv` and delivers progress feedback (improvements, persistent gaps, regressions, solid retention). Read-only — no file writes.
   - Invoked via `/study-plan` or "how am I doing?"
 
 ## Project Structure
 
 ```
-current_topics.txt            — per-candidate prioritized CSV of subtopics for ios-interview to draw from. Created by /helper on cold start, then owned by /setup-session (rewrites from interview_history.txt). (gitignored — local-only)
+current_topics.txt            — per-candidate prioritized CSV of subtopics for ios-interview to draw from. Created by /helper on cold start, then owned by /setup-session (rewrites from interview_history.csv). (gitignored — local-only)
 
 candidate-information/        — candidate profile data (tracked; provided by the candidate, not generated)
   ├── linkedIn.txt            — LinkedIn profile content (the candidate places this file themselves)
@@ -38,7 +38,7 @@ candidate-information/        — candidate profile data (tracked; provided by t
 
 logs/                         — personal session logs (gitignored)
   ├── current_interview.txt   — current/most recent session Q&A
-  └── interview_history.txt   — wide CSV: 2 header rows (topic, subtopic) + one row per session; cells contain notes
+  └── interview_history.csv   — wide CSV: 2 header rows (topic, subtopic) + one row per session; cells contain notes
 
 helper/                       — onboarding + workflow navigation
   └── SKILL.md
@@ -46,7 +46,7 @@ helper/                       — onboarding + workflow navigation
 ios-interview/                — interview simulation skill
   └── SKILL.md
 
-save-progress/                — saves session data to interview_history.txt
+save-progress/                — saves session data to interview_history.csv
   └── SKILL.md
 
 setup-session/                — rewrites current_topics.txt from history

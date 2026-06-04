@@ -29,7 +29,7 @@ When invoked, check the project state by reading the file system:
 | `candidate-information/cv.txt` | CV exists? |
 | `current_topics.txt` | Topic list ready for next interview? |
 | `logs/current_interview.txt` | Interview in progress or unsaved? |
-| `logs/interview_history.txt` | Past sessions exist? |
+| `logs/interview_history.csv` | Past sessions exist? |
 
 Route to the appropriate branch below based on what you find.
 
@@ -95,7 +95,7 @@ Move to Branch 3 (everything is ready).
 
 ## Branch 3: Everything set up, no history yet
 
-If profile + topics exist but `logs/interview_history.txt` does NOT exist:
+If profile + topics exist but `logs/interview_history.csv` does NOT exist:
 
 Tell the candidate:
 > "✓ Setup complete. You're ready for your first interview.
@@ -119,7 +119,7 @@ Tell the candidate:
 
 ## Branch 5: Veteran — history exists
 
-If `logs/interview_history.txt` exists with rows AND no `logs/current_interview.txt`:
+If `logs/interview_history.csv` exists with rows AND no `logs/current_interview.txt`:
 
 Read the history briefly to count sessions, then tell the candidate:
 > "You have N saved interview sessions.
@@ -145,6 +145,6 @@ The helper only writes ONE file: `current_topics.txt` (during Branch 2).
 - **Never write `candidate-information/cv.txt`.** Ask the candidate to provide that file themselves.
 - **Never read or copy content** from anywhere to populate linkedIn.txt or cv.txt. The candidate must place those files manually.
 - **Never deliver verdicts, recommendations, or coaching.** That's other skills' jobs.
-- **Never write `interview_history.txt`** — only `save-progress` writes that.
+- **Never write `interview_history.csv`** — only `save-progress` writes that.
 - **Never write `current_interview.txt`** — only `ios-interview` writes that.
 - **Never invent profile content** or generate placeholder text for the missing files.

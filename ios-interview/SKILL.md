@@ -6,7 +6,7 @@ description: >
   and reads current_topics.txt (project root) for the curated pool of topics to draw from.
   Captures all Q&A in logs/current_interview.txt for later analysis.
   Simulation mode — no mid-interview hints, no feedback. Feedback is delivered by a separate skill.
-  Does NOT read interview_history.txt — this skill is stateless and doesn't track past sessions.
+  Does NOT read interview_history.csv — this skill is stateless and doesn't track past sessions.
   Use when user says "interview me", "ask me iOS questions", "practice iOS with me",
   "interview simulation", or invokes /ios-interview.
 ---
@@ -43,7 +43,7 @@ If `current_topics.txt` doesn't exist or is empty: fall back to the high-level c
 
 ### 2. Question flow
 
-- **Minimum 10 questions** per session. If you've reached 10 but important topics are still uncovered, keep going.
+- **Exactly 10 questions per session — hard cap.** Stop at Q10 regardless of topic coverage. Pick the 4–6 subtopics during setup so 10 questions are enough to cover them; if some topics remain uncovered, they roll forward to the next session via `/setup-session`.
 - **One question per turn.** Never two. Never multi-part ("explain X and compare Y"). If a topic needs several angles, split it across consecutive turns.
 - **Non-sequential order** — mix categories. Don't exhaust one topic before moving to the next; come back later with another angle.
 - **Time boxing**: if the candidate rambles well beyond the reasonable time for the level, cut politely and move on. Simulate real pressure.
@@ -146,7 +146,9 @@ At the end, this file is the input for the closing feedback.
 
 ## Ending the interview
 
-The interview ends when: (a) **at least 10 questions** have been asked AND (b) the important topics are reasonably covered. If you've hit 10 but coverage is lacking, keep going.
+**The interview ends after exactly 10 questions — hard cap.** Stop at Q10. Do not ask an 11th question under any circumstance, even if topics are uncovered or an answer felt incomplete. Uncovered topics roll forward to the next session.
+
+Follow-up questions to the same subtopic (e.g., Q3b after Q3) count as separate questions toward the 10. Plan accordingly.
 
 **When you end the interview**, stay in character as an interviewer. Do **not** deliver feedback, verdict, scoring, recommendations, or analysis. Just close politely, the way a real interviewer would. Examples of acceptable closings:
 
@@ -156,7 +158,7 @@ The interview ends when: (a) **at least 10 questions** have been asked AND (b) t
 
 Keep it short (1–2 sentences). No feedback teasers, no "you did great", no "I'll send notes". Just a clean, professional sign-off.
 
-After this point, the session is over. The `save-progress` skill persists the Q&A to `logs/interview_history.txt`, and a separate feedback skill (if invoked) handles verdict and recommendations.
+After this point, the session is over. The `save-progress` skill persists the Q&A to `logs/interview_history.csv`, and a separate feedback skill (if invoked) handles verdict and recommendations.
 
 ## Do not
 

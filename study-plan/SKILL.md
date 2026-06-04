@@ -1,7 +1,7 @@
 ---
 name: study-plan
 description: >
-  Reads logs/interview_history.txt and delivers progress feedback about the
+  Reads logs/interview_history.csv and delivers progress feedback about the
   candidate's learning across all sessions — improvements, persistent gaps,
   regressions, and solid retention. Pure analysis skill — does NOT write any
   files. For topic preparation of the next session, use /setup-session.
@@ -19,11 +19,11 @@ For preparing topics for the next interview session, the candidate should use `/
 
 This skill reads **only one file**:
 
-- **`logs/interview_history.txt`** — Wide/pivoted CSV with TWO header rows (topic row, then subtopic row with `session_date,session_id,...` prefix) and one row per session. Cells contain the notes text for that (session, subtopic), or are empty if the subtopic was not touched that session.
+- **`logs/interview_history.csv`** — Wide/pivoted CSV with TWO header rows (topic row, then subtopic row with `session_date,session_id,...` prefix) and one row per session. Cells contain the notes text for that (session, subtopic), or are empty if the subtopic was not touched that session.
 
 This skill does **not** access any other file. No personal info, no topic list, no current session log.
 
-**If `logs/interview_history.txt` is missing or empty** (header only, no data rows): tell the candidate there's no history to analyze — they should run `/ios-interview` and `/save-progress` first. Then exit.
+**If `logs/interview_history.csv` is missing or empty** (header only, no data rows): tell the candidate there's no history to analyze — they should run `/ios-interview` and `/save-progress` first. Then exit.
 
 ## Inferring confidence from notes (read-time)
 
@@ -91,9 +91,9 @@ For next session topic prep, run /setup-session.
 
 ## Do not
 
-- **Never read** any file other than `logs/interview_history.txt`.
+- **Never read** any file other than `logs/interview_history.csv`.
 - **Never write or modify any file.** This is a pure analysis skill.
 - **Never deliver a verdict, recommendation, or study task list.** Trend feedback only.
-- **Never run** if `logs/interview_history.txt` is missing or empty (no data rows).
+- **Never run** if `logs/interview_history.csv` is missing or empty (no data rows).
 - **Never invent improvements, regressions, or retention claims** that aren't backed by data in history.
 - **Never rewrite `current_topics.txt`** — that's `/setup-session`'s job.
