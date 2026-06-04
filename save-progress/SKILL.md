@@ -1,118 +1,135 @@
 ---
 name: save-progress
 description: >
-  Persists the most recent interview session's data into the interview_history file.
-  Reads logs/current_interview.txt (the just-finished session), analyzes per-question
-  categories to roll up topic confidence levels, and updates logs/interview_history.txt
-  (topic mastery table + appends a session entry). Does NOT deliver feedback, verdict,
-  or recommendations — only saves state. A separate feedback skill is responsible for
-  user-facing analysis.
+  Persists the most recent interview session's data into the interview history CSV.
+  Reads ONLY logs/current_interview.txt (does NOT access any candidate personal
+  information). Appends one row per topic touched in the session to
+  logs/interview_history.txt (CSV format). Save-only — no feedback, no verdict,
+  no recommendations delivered to the user.
   Use when the candidate says "save the progress", "save the session",
   "save my interview", "log the session", or invokes /save-progress.
 ---
 
 # Save Progress
 
-You are persisting the most recent interview session's data into the cumulative history file. Your job is **save state, not deliver feedback**. The user-facing output is a brief confirmation, not an analysis.
+You are persisting the most recent interview session's data into the cumulative history CSV. Your job is **append rows, not deliver feedback**. The user-facing output is a brief confirmation.
 
 ## When this skill runs
 
-- After an `ios-interview` session has ended (or at any later time when the user wants to persist the data).
+- After an `ios-interview` session has ended.
 - Standalone invocation — not chained automatically.
 - Output is a confirmation, not coaching or recommendations.
 
-## Mandatory inputs (read in order)
+## Mandatory inputs (only these)
 
-1. **`logs/current_interview.txt`** — The session to persist. Contains Q&A pairs with per-question categories (On Point / Could Be Better / Vague / Improvised / Don't Know) and notes per question.
-2. **`logs/interview_history.txt`** — The existing cumulative history file. Contains the Topic Mastery table and prior session entries. You will update this file (append the new session, update existing topic rows).
-3. **`candidate-information/linkedIn.txt`** — Used only for context (target role, level). Helps interpret topic relevance, but the skill does not analyze this for user output.
+This skill reads **only one file**:
 
-**If `logs/current_interview.txt` is missing or empty**: tell the user there's nothing to save and stop. Don't fabricate data.
+- **`logs/current_interview.txt`** — The session to persist. Contains Q&A pairs with per-question categories (On Point / Could Be Better / Vague / Improvised / Don't Know) and notes per question.
 
-**If `logs/interview_history.txt` doesn't exist**: create it with the standard format (Topic Mastery table header + Sessions section header), then populate.
+This skill does **NOT** read:
+- `candidate-information/linkedIn.txt` (no personal information needed)
+- `candidate-information/candidate_stories.md`
+- Any other personal data
 
-## What this skill writes (the only output that matters)
+The skill operates purely on session Q&A data — anonymous to candidate identity.
 
-Update `logs/interview_history.txt` with:
+## Output file
 
-### 1. Topic Mastery table — update existing rows, add new ones
+- **`logs/interview_history.txt`** — Cumulative history in **CSV format**. Append new rows. Never modify or delete existing rows.
 
-For each topic touched in the session, roll up the per-question categories into a single confidence level:
+## CSV format
 
-| Per-question signal | Confidence implication |
-|---------------------|------------------------|
-| Consistently **On Point** (≥2 questions) | `strong` |
-| Mix of **On Point** and **Could Be Better**, no Vague/Improvised/Don't Know | `ok` |
-| Any **Vague**, **Improvised**, or **Don't Know** | `weak` |
-| Topic never touched before this session, single question | use the category (On Point→`strong`, Could Be Better→`ok`, Vague/Improvised/Don't Know→`weak`) |
-| Topic never asked about | `unknown` (don't add a row unless explicitly relevant) |
+The file uses standard CSV (RFC 4180):
+- Comma-separated
+- Double-quote any field containing commas, quotes, or newlines
+- Escape internal double-quotes by doubling them (`"` → `""`)
+- First row is the header
 
-**Update rules**:
-- If a topic already exists in the table, update its `Confidence` and `Last Practiced` columns, and append a brief note to the `Notes` column (don't overwrite existing notes — extend them).
-- If the topic is new, add a row in the appropriate alphabetical/category position.
-- For topics where confidence **degraded** (e.g., was `strong`, now `weak`): note the regression in the Notes column ("regressed from strong, session N").
+### Schema (columns)
 
-### 2. Sessions section — append a new entry
+| Column | Type | Description |
+|--------|------|-------------|
+| `session_date` | `YYYY-MM-DD` | Date of the interview session |
+| `session_id` | integer | Incrementing session number (1, 2, 3, …). Determine by counting unique `session_date` values already in the file + 1. |
+| `topic` | string | High-level category (e.g., "Swift Language", "Architecture", "Security", "Testing", "Swift Concurrency"). Use the question categories listed in `ios-interview/SKILL.md`. |
+| `subtopic` | string | Specific topic within the category (e.g., "some vs any", "MVVM Navigation", "Keychain accessibility") |
+| `confidence` | enum | `strong` \| `ok` \| `weak` \| `unknown` \| `skip` — derived from per-question categories (see rollup rules below). `skip` is only set manually by the user (replaces the previous `🟢 skip` convention) — this skill never writes `skip`. |
+| `questions_asked` | integer | Number of questions about this subtopic this session |
+| `on_point_count` | integer | Number of those questions answered "On Point" |
+| `notes` | string (quoted) | Brief description of the gap, what was missing, what was confused. 1–2 sentences. Quote-escape as needed. |
 
-Append a new section under `## Sessions`:
+### Header row (write once if file is new)
 
-```markdown
-### YYYY-MM-DD (Session N)
-- **Topics covered**: comma-separated list of topics from this session
-- **Asked / on-point**: N total questions / M classified as On Point
-- **Weaknesses surfaced**: 2–4 bullet points of what went poorly (Vague, Improvised, Don't Know answers), with a 1-line description of the gap
-- **Patterns observed**: 2–3 bullets on HOW the candidate thinks — what they confuse, what they over-rely on, what reasoning habit they repeat (this is the most valuable field; describe behavior, not just content gaps)
-- **Next session focus**: 3–5 specific topics to prioritize next session, derived from the weaknesses
+```csv
+session_date,session_id,topic,subtopic,confidence,questions_asked,on_point_count,notes
 ```
 
-Use the current date for `YYYY-MM-DD`. Determine session number by counting existing session entries + 1.
+### Example rows
 
-## Analysis rules (internal, not user-facing)
+```csv
+2026-06-04,14,Architecture,Repo vs Service vs UseCase,weak,1,0,"Inverted definitions: said Repo returns DTOs, Service returns domain — should be opposite"
+2026-06-04,14,Design Patterns,Strategy,strong,1,1,"First time generating own example from real experience"
+2026-06-04,14,Swift Language,some vs any,weak,1,0,"Doesn't know opaque vs existential mechanism"
+2026-06-04,14,Security,Keychain token storage,weak,1,0,"Chose Keychain but missing kSecAttrAccessible values and Secure Enclave"
+```
 
-To populate the session entry properly:
+## Confidence rollup (per-question → per-subtopic)
 
-- **Weaknesses surfaced**: take Vague + Improvised + Don't Know answers, group by topic, write 1 line each describing the gap (not the question — the gap). Example: "Repository vs Service: inverted definitions (said Repo returns DTOs, Service returns domain — should be opposite)."
-- **Patterns observed**: look across questions for recurring habits. Examples:
-  - "Defaults to pseudo-code under pressure instead of writing real syntax"
-  - "Imports past work context without checking fit (e.g., used throws for X because Y used it)"
-  - "Confuses framework names with pattern names (Observer vs Observation)"
-- **Next session focus**: derive from the weaknesses + role priorities (from `linkedIn.txt`). Don't recommend generic study activities — those belong to `study-plan`. Just list the **topics** that need re-drilling.
+For each subtopic touched in the session, roll up the per-question categories:
+
+| Per-question signal | Confidence |
+|---------------------|------------|
+| All questions **On Point** | `strong` |
+| Mix of **On Point** and **Could Be Better**, no Vague/Improvised/Don't Know | `ok` |
+| Any **Vague**, **Improvised**, or **Don't Know** | `weak` |
+| Subtopic not asked about in any question | do not write a row for it |
+
+`unknown` is reserved for subtopics the candidate has never been asked — this skill should not emit `unknown` rows since it only writes about topics that ARE in the current session.
+
+## Workflow
+
+1. **Read `logs/current_interview.txt`** in full.
+2. **Determine `session_date`**: extract from the session header (e.g., `# Interview — 2026-06-04`). If missing, use today's date.
+3. **Determine `session_id`**: read `logs/interview_history.txt`, count unique `session_date` values, add 1. If the file doesn't exist, `session_id = 1`.
+4. **Group questions by (topic, subtopic)**: each Q&A pair has a topic and subtopic in its header (e.g., `### Q1 — Architecture / Repo vs Service vs UseCase`).
+5. **Roll up each group** into a single row using the confidence table above.
+6. **Compose CSV rows** with proper quoting.
+7. **Append to `logs/interview_history.txt`**:
+   - If file doesn't exist: create it with the header row, then append data rows.
+   - If file exists: append data rows only (no duplicate header).
+8. **Output confirmation** to the user (see below).
+
+## Idempotency
+
+Before writing, check if rows for the current `session_date` already exist in `logs/interview_history.txt`:
+- If yes: ask the user "A session for [date] is already saved (N rows). Append anyway, replace those rows, or cancel?"
+- Default to **cancel** if the user doesn't respond.
+- Don't silently duplicate.
 
 ## What the user sees (the brief confirmation)
 
-After updating `logs/interview_history.txt`, output ONLY this:
+After appending to `logs/interview_history.txt`, output ONLY this format:
 
 ```
 ✓ Session saved to logs/interview_history.txt
 
-Updated: N topic mastery rows
-Added: session entry "YYYY-MM-DD (Session N)"
-Topics covered: [list, max 8]
-Confidence summary: X strong, Y ok, Z weak, W unknown (this session's topics)
-
-Next session focus (saved to history):
-- Topic 1
-- Topic 2
-- Topic 3
+Session: YYYY-MM-DD (Session N)
+Rows appended: M
+Topics covered: [comma-separated list, max 8]
+Confidence distribution: X strong, Y ok, Z weak
 ```
 
-That's it. **No further analysis, no verdict, no recommendations, no encouragement, no critique.**
+That's it. **No analysis, no verdict, no recommendations, no encouragement, no critique.**
 
-If the user wants feedback or a study plan, they invoke a different skill (`feedback` for verdict, `study-plan` for between-session study).
+If the user wants feedback or a study plan, they invoke a different skill.
 
 ## Do not
 
+- **Never read `candidate-information/`** — this skill does not need personal info.
 - **Never deliver a verdict** (qualifies / does not qualify).
-- **Never give recommendations** beyond what goes into the saved file's "Next session focus" field — and even those are topic names, not study tasks.
-- **Never comment on candidate performance** ("you did well on X", "you struggled with Y"). Just save and confirm.
-- **Never overwrite existing data**. Update topic rows by extending notes; append session entries; don't delete history.
-- **Never invent data**. If the per-question category is unclear, mark the topic confidence as `unknown` or skip it.
-- **Never run** if `logs/current_interview.txt` is missing or empty — tell the user there's nothing to save.
-- **Never analyze patterns the user didn't display**. Only describe behavior actually observed in the session log.
-
-## Idempotency
-
-If the user runs `/save-progress` twice for the same session:
-- Detect that the session entry for today's date already exists.
-- Ask the user: "A session for [date] is already saved. Overwrite, append a new entry, or cancel?"
-- Don't silently duplicate.
+- **Never give recommendations** or commentary on performance.
+- **Never overwrite or delete existing rows**. Append-only.
+- **Never invent data**. If a Q&A pair is ambiguous (no clear topic/subtopic), skip it and note in the confirmation that N questions were skipped.
+- **Never run** if `logs/current_interview.txt` is missing or empty — tell the user there's nothing to save and stop.
+- **Never silently duplicate** session rows. Check for existing session_date before appending.
+- **Never modify the CSV schema** without updating this SKILL.md first.

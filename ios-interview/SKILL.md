@@ -29,17 +29,19 @@ This is a **conceptual/verbal** interview. **Never** ask the candidate to write,
 **MANDATORY before the first question**:
 
 1. Read `candidate-information/linkedIn.txt` — candidate profile, stack, experience.
-2. Read `logs/interview_history.txt` — **this is the source of truth for where to start**. Look at:
-   - Topics marked `weak` or `unknown` → prioritize these today.
-   - `strong` topics → don't repeat them unless the user explicitly asks for review.
-   - Last session: "Next session focus" field → direct guide on what to touch.
-   - "Patterns observed" → adjust question style to how the candidate thinks.
+2. Read `logs/interview_history.txt` — **this is the source of truth for where to start**. The file is a CSV with one row per (session, subtopic). Look at:
+   - For each `subtopic`, find the **most recent row** (highest `session_date`). That row's `confidence` is the current state.
+   - Topics with current confidence `weak` or `unknown` → prioritize today.
+   - Topics with current confidence `strong` → don't repeat unless the user explicitly asks for review.
+   - Topics with current confidence `skip` → don't ask. The user marked them intentionally.
+   - Topics where confidence **regressed** across sessions (e.g., `strong` → `ok`, or `ok` → `weak`) → high priority (recall is fading).
+   - `notes` column may contain specific gaps observed in past sessions (e.g., "inverted definitions" or "doesn't know mechanism") — use these to ask sharper follow-ups.
 
 If `logs/interview_history.txt` doesn't exist or is empty (first session), start with baseline calibration questions per topic to populate it.
 
-**If `logs/interview_history.txt` is out of date** (e.g., gap between sessions): use the "Next session focus" from the most recent session entry as your roadmap, but ask the candidate at session open if anything has changed since then.
+**If `logs/interview_history.txt` is out of date** (e.g., gap between sessions): use the most recent session's weak/unknown topics as your roadmap, but ask the candidate at session open if anything has changed since then.
 
-**If a topic is marked `🟢 skip` in `logs/interview_history.txt`**: don't ask it again unless the candidate explicitly requests a refresh. The candidate marked it intentionally.
+**For the "next session focus"** (which topics to drill today): derive it from the CSV by listing topics with `weak` / `unknown` confidence and any regressions detected. If the candidate wants a pre-prepared study plan, they can invoke `/study-plan` separately — that skill produces between-session study tasks, not interview questions.
 
 3. Announce in 1–2 lines: target role (Semi-Senior iOS), level, and 4–6 topics to cover today (derived from `logs/interview_history.txt` + profile). Briefly mention why those topics ("last session Concurrency was weak and we never touched Auth").
 4. Create/update `logs/current_interview.txt` with: date, role, level, topics to cover.
@@ -150,32 +152,29 @@ At the end, this file is the input for the closing feedback.
 
 ## `logs/interview_history.txt` — format reference (read-only for this skill)
 
-This skill **reads** `logs/interview_history.txt` at the start of each session (to know what's weak/unknown). It does **not** write to it — updating progress is handled by a separate feedback skill.
+This skill **reads** `logs/interview_history.txt` at the start of each session (to know what's weak/unknown). It does **not** write to it — that's handled by the `save-progress` skill.
 
-Format (for reference when reading):
+Format: standard CSV (RFC 4180). One row per (session, subtopic). Header on line 1.
 
-```markdown
-# iOS Interview Progress — <Candidate Name>
-
-## Topic Mastery
-
-| Topic / Subtopic | Confidence | Last Practiced | Notes |
-|------------------|------------|----------------|-------|
-| Swift Concurrency / async let | strong | 2026-05-11 | clear on parallel use |
-| Swift Concurrency / cancellation | weak | 2026-05-11 | confuses Task.isCancelled with throw CancellationError |
-| SwiftUI / @StateObject vs @ObservedObject | unknown | — | — |
-
-Confidence: `strong` | `ok` | `weak` | `unknown`.
-
-## Sessions
-
-### YYYY-MM-DD
-- **Topics covered**: ...
-- **Asked / on-point**: N / M
-- **Weaknesses surfaced**: ...
-- **Patterns observed**: how they think, what they confuse, what habit they repeat
-- **Next session focus**: ...
+```csv
+session_date,session_id,topic,subtopic,confidence,questions_asked,on_point_count,notes
+2026-05-11,1,Swift Concurrency,async let,strong,1,1,"clear on parallel use"
+2026-05-11,1,Swift Concurrency,cancellation,weak,1,0,"confuses Task.isCancelled with throw CancellationError"
+2026-06-04,14,Architecture,Repo vs Service vs UseCase,weak,1,0,"Inverted definitions"
+2026-06-04,14,Design Patterns,Strategy,strong,1,1,"First own example from real experience"
 ```
+
+**Columns**:
+- `session_date` — `YYYY-MM-DD`
+- `session_id` — incrementing session number
+- `topic` — high-level category (e.g., "Swift Language", "Architecture", "Security")
+- `subtopic` — specific topic (e.g., "some vs any", "MVVM Navigation")
+- `confidence` — `strong` | `ok` | `weak` | `unknown` | `skip`
+- `questions_asked` — number of questions this session about this subtopic
+- `on_point_count` — number of those answered On Point
+- `notes` — short description of gaps or strengths (quoted)
+
+**To find the current confidence for a subtopic**: filter rows for that `subtopic`, sort by `session_date` descending, take the first row. Older rows are kept for trend/regression detection.
 
 ## Ending the interview
 

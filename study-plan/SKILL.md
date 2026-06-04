@@ -24,7 +24,7 @@ You are generating an actionable study plan for the candidate to follow **betwee
 ## Mandatory inputs (read in order)
 
 1. **`candidate-information/linkedIn.txt`** — Candidate profile, target role, required skills. Determines which topics are **role-required** (must-cover) vs nice-to-have.
-2. **`logs/interview_history.txt`** — Topic mastery table + session history. Source of truth for what's `weak` / `unknown` / `strong` / `ok`, and what the "Next session focus" was at last close.
+2. **`logs/interview_history.txt`** — CSV with one row per (session, subtopic). Source of truth for what's `weak` / `unknown` / `strong` / `ok` / `skip`. To get the current state of a subtopic, take the most recent row for it (highest `session_date`). Use older rows to detect trends and regressions across sessions.
 3. **`logs/current_interview.txt`** — Most recent session's Q&A and patterns observed. Identifies fresh gaps not yet reflected in `interview_history.txt`'s table.
 
 If any of these are missing, say so and proceed with what's available.
@@ -41,8 +41,9 @@ Rank topics by a combination of three signals:
 ### 2. Confidence gap (from `logs/interview_history.txt`)
 - **`unknown`** (baseline never measured) → high priority if role-critical, otherwise medium
 - **`weak`** → high priority always
-- **`ok`** → medium priority if it's eroding (was `strong` in earlier session, now `ok`)
-- **`strong`** → skip unless 3+ weeks since last practice (retention check)
+- **`ok`** → medium priority if it's eroding (look at older rows for that subtopic — was `strong` in earlier session, now `ok`?)
+- **`strong`** → skip unless 3+ weeks since last practice (retention check via the most recent `session_date`)
+- **`skip`** → do not include in the plan; the user marked it intentionally
 
 ### 3. Recency / erosion (from session history)
 - Topic was `strong` 2+ sessions ago but degraded → high priority (recall is fading)
