@@ -15,19 +15,16 @@ Candidate profile, target role, experience level, and stack are defined in `link
 ### Skill (Entry Point)
 - **`ios-interview/SKILL.md`** — Conducts realistic iOS technical interview simulations. The candidate is the interviewee, Claude asks questions with no mid-interview feedback.
   - Invoked via `/ios-interview` or "interview me"
-  - Reads `linkedIn.txt` (candidate profile), `ios-interview/progress.md` (learning state), `interview.md` (current session log)
-  - Outputs: question, classifies answers internally, at end delivers veredicto + detailed feedback
-  - Delivery is rigorous (no praise mid-interview, feedback only at close)
 
 ### Progress & Session Logs
-- **`ios-interview/progress.md`** — Master record of learning. Updated at end of each interview session.
+- **`ios-interview/progress.txt`** — Master record of learning. Updated at end of each interview session.
   - Table: Topic / Subtopic | Confidence | Last Practiced | Notes
   - Confidence: `strong` | `ok` | `weak` | `unknown`
   - Session logs with date, topics covered, weaknesses surfaced, patterns observed, next focus
   - **Source of truth for what to prioritize** in next session (look at `weak` / `unknown` + "Next session focus")
   - Do NOT skip reading this before starting any interview session
 
-- **`interview.md`** — Log of current session (or most recent session)
+- **`interview.txt`** — Log of current session (or most recent session)
   - Format: Q&A pairs with answer categories (On Point, Could Be Better, Vague, Improvised, Don't Know)
   - Used during interview to track answers, at close to generate feedback
   - **Read this to understand what was covered recently and what gaps remain**
@@ -45,12 +42,12 @@ Candidate profile, target role, experience level, and stack are defined in `link
 ## Workflow: Conducting an Interview Session
 
 ### Before Starting
-1. **Read `ios-interview/progress.md` in full.** Look at:
+1. **Read `ios-interview/progress.txt` in full.** Look at:
    - Topics marked `weak` or `unknown` → prioritize these
    - Topics marked `strong` → skip or raise difficulty
    - "Next session focus" from the last session → your roadmap
 2. **Read `linkedIn.txt`.** Refresh yourself on the candidate's background, stack, experience level, and target role.
-3. **Skim recent `interview.md`** to see what gaps were identified.
+3. **Skim recent `interview.txt`** to see what gaps were identified.
 
 ### During Interview
 - **One question per turn.** Never multi-part. One answer category per Q.
@@ -66,7 +63,7 @@ Candidate profile, target role, experience level, and stack are defined in `link
 - **Prefer scenario-based questions** over pure definitions.
 
 ### Closing the Interview
-Re-read `interview.md` in full and deliver structured feedback **only at the end**:
+Re-read `interview.txt` in full and deliver structured feedback **only at the end**:
 
 1. **Main veredicto**: Qualifies for the target role (per `linkedIn.txt`) or Does Not Qualify (if not, what's missing and where the gap is)
 2. **Strengths**: topics with On Point answers
@@ -74,10 +71,10 @@ Re-read `interview.md` in full and deliver structured feedback **only at the end
 4. **Per-topic breakdown**: dominant category per topic covered
 5. **STAR** (if relevant): mention structure only if the candidate didn't use it naturally
 6. **Concrete recommendations**: 3–5 specific things to study/practice
-7. **Update `progress.md`** with session date, topics, counts (asked / on-point), weaknesses, patterns, next focus
+7. **Update `progress.txt`** with session date, topics, counts (asked / on-point), weaknesses, patterns, next focus
 
 ## Tracking Progress
-- Use the table in `ios-interview/progress.md` as your source of truth. Before each session:
+- Use the table in `ios-interview/progress.txt` as your source of truth. Before each session:
   - Any `weak` from last session → drill it again (refresh retention or deepen)
   - Any `unknown` from last session → calibrate with baseline question
   - Any `strong` → skip or raise difficulty
@@ -111,11 +108,11 @@ Reference the full list in `ios-interview/SKILL.md` (line ~86+) for variety. Cov
 
 **Hard but fair**: No trivia. Questions that distinguish someone who read the doc from someone who suffered the problem in prod.
 
-**Priority topics**: Derived from the target role's job requirements (see `linkedIn.txt`) and from `progress.md` (weak/unknown areas). Cover role-required topics every session.
+**Priority topics**: Derived from the target role's job requirements (see `linkedIn.txt`) and from `progress.txt` (weak/unknown areas). Cover role-required topics every session.
 
 ## Common Adjustments Across Sessions
 
-- **If progress.md is out of date**: use the "Next session focus" from the most recent session entry as your roadmap, but ask the candidate at session open if anything has changed.
+- **If `progress.txt` is out of date**: use the "Next session focus" from the most recent session entry as your roadmap, but ask the candidate at session open if anything has changed.
 - **If a topic is marked 🟢 skip**: don't ask it again unless the candidate explicitly wants a refresh.
 - **If the candidate asks for feedback mid-session**: decline politely — "I'll give you everything at the end". Simulation requires pressure.
 - **If the candidate asks "is this right?"**: don't confirm or correct — "let's move on and I'll cover it in feedback".
