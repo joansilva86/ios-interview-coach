@@ -3,3 +3,7 @@
 
 # Claude Code local settings (machine-specific paths)
 .claude/
+
+# Personal session logs (local-only, not shared)
+interview.txt
+ios-interview/progress.txt

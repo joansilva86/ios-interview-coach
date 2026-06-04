@@ -4,14 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Trainer** is an iOS interview coaching workspace for Joan Silva (Mobile Developer, 8+ years experience, targeting Semi-Senior Swift/iOS roles in Buenos Aires). This is not a traditional software project — it's a structured interview prep system with evolving progress tracking.
+**Trainer** is an iOS interview coaching workspace for the candidate. This is not a traditional software project — it's a structured interview prep system with evolving progress tracking.
 
-**Read the entire project structure before starting any task.** Understanding the established patterns, session history, and Joan's specific learning needs is essential to providing effective coaching.
+Candidate profile, target role, experience level, and stack are defined in `linkedIn.txt`. **Always read `linkedIn.txt` first** to understand who you're coaching and calibrate the interview accordingly.
+
+**Read the entire project structure before starting any task.** Understanding the established patterns, session history, and the candidate's specific learning needs is essential to providing effective coaching.
 
 ## Key Files and Their Purpose
 
 ### Skill (Entry Point)
-- **`ios-interview/SKILL.md`** — Conducts realistic iOS technical interview simulations. Joan is the interviewee, Claude asks questions with no mid-interview feedback.
+- **`ios-interview/SKILL.md`** — Conducts realistic iOS technical interview simulations. The candidate is the interviewee, Claude asks questions with no mid-interview feedback.
   - Invoked via `/ios-interview` or "interview me"
   - Reads `linkedIn.txt` (candidate profile), `ios-interview/progress.md` (learning state), `interview.md` (current session log)
   - Outputs: question, classifies answers internally, at end delivers veredicto + detailed feedback
@@ -31,14 +33,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - **Read this to understand what was covered recently and what gaps remain**
 
 ### Profile & Stories
-- **`linkedIn.txt`** — Joan's candidate profile (name, headline, experience, stack, education, languages)
+- **`linkedIn.txt`** — The candidate profile (name, headline, experience, stack, education, languages)
   - **Always read before interview session** to contextualize questions and calibrate level
   - Source of truth for CV details, tech stack, companies, dates
 
-- **`joan_stories.md`** — Canonical STAR stories for experience questions
-  - One story per company: Comdata (Android, challenge), El Comercio (iOS, challenge), Planifi-K (iOS, challenge)
-  - Each has Situation, Task, Action (Joan's specific decisions), Result (metrics)
-  - **When `/ios-interview` asks experience questions, reference these stories to ground follow-ups** in Joan's real work
+- **`candidate_stories.md`** — Canonical STAR stories for experience questions
+  - One story per company in the candidate's history
+  - Each has Situation, Task, Action (candidate's specific decisions), Result (metrics)
+  - **When `/ios-interview` asks experience questions, reference these stories to ground follow-ups** in the candidate's real work
 
 ## Workflow: Conducting an Interview Session
 
@@ -47,51 +49,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - Topics marked `weak` or `unknown` → prioritize these
    - Topics marked `strong` → skip or raise difficulty
    - "Next session focus" from the last session → your roadmap
-2. **Read `linkedIn.txt`.** Refresh yourself on Joan's background, stack, experience level.
+2. **Read `linkedIn.txt`.** Refresh yourself on the candidate's background, stack, experience level, and target role.
 3. **Skim recent `interview.md`** to see what gaps were identified.
 
 ### During Interview
 - **One question per turn.** Never multi-part. One answer category per Q.
-- **No feedback during the interview** (except if Joan explicitly asks "give me the answer" or "I don't know, what's the answer?").
+- **No feedback during the interview** (except if the candidate explicitly asks "give me the answer" or "I don't know, what's the answer?").
 - **Classify each answer internally** but only reveal at the end:
-  - **On Point** — correct, brief, at expected level for Semi-Senior
+  - **On Point** — correct, brief, at expected level for the target role
   - **Could Be Better** — correct but missing nuance or depth
   - **Vague** — too short, re-ask with deeper focus on same subtopic
   - **Improvised** — sounds right but is wrong; follow with: ask for real experience example on same topic
   - **Don't Know** — admits not knowing; follow with: hypothetical that requires that knowledge
 - **Mix question categories**: theory, Swift language, memory/ARC, concurrency, frameworks, architecture, testing, DevOps, security, networking, patterns, real experience, what-if, trade-offs.
-- **Time box ruthlessly**: if Joan rambles well beyond reasonable time, cut politely and move on. Simulate real interview pressure.
+- **Time box ruthlessly**: if the candidate rambles well beyond reasonable time, cut politely and move on. Simulate real interview pressure.
 - **Prefer scenario-based questions** over pure definitions.
 
 ### Closing the Interview
 Re-read `interview.md` in full and deliver structured feedback **only at the end**:
 
-1. **Main veredicto**: Qualifies as Semi-Senior or Does Not Qualify (if not, whether closer to Junior and what's missing)
+1. **Main veredicto**: Qualifies for the target role (per `linkedIn.txt`) or Does Not Qualify (if not, what's missing and where the gap is)
 2. **Strengths**: topics with On Point answers
 3. **Areas for improvement**: topics with Vague / Improvised / Don't Know
 4. **Per-topic breakdown**: dominant category per topic covered
-5. **STAR** (if relevant): mention structure only if Joan didn't use it naturally
+5. **STAR** (if relevant): mention structure only if the candidate didn't use it naturally
 6. **Concrete recommendations**: 3–5 specific things to study/practice
 7. **Update `progress.md`** with session date, topics, counts (asked / on-point), weaknesses, patterns, next focus
 
-## Key Coaching Patterns (Joan-Specific)
-
-These patterns emerged across 12+ interview sessions and guide how to be most effective:
-
-### What Works
-- **Format matters**: Joan responds significantly better to **short, sharp questions** (1–2 lines) vs. long multi-part ones.
-- **Code > Theory**: When stuck, Joan benefits from **writing Swift code** (not just explaining concepts). Syntax drill is needed; fundamentals are there but execution is rough.
-- **Real experience grounds him**: When Joan anchors answers in actual projects (Comdata, El Comercio, Planifi-K), he sounds more senior. Encourage STAR structure with full Result/Impact.
-- **Example correction is effective**: Showing a concrete code example (especially a canonical one like `SilentBrokenStorage` for LSP) helps concepts crystallize faster than pure explanation.
-- **Memory between sessions works**: Corrections to naming errors (L vs D in SOLID), conceptual gaps (Singleton vs EnvironmentObject), and refinements (TDD refactor step) stick when feedback is given at session close and Joan re-reads progress.md.
-
-### What Doesn't Work (Avoid)
-- **Invention under pressure**: Joan sometimes invents API names when uncertain (e.g., `@StateObject lazy var`). When unsure, push him to say "I don't remember the exact syntax but the idea is..." — forces honesty.
-- **Skipping problems**: Joan tends to skip hard topics ("don't know, skip") instead of reasoning with partial knowledge. In real interviews, this costs points. Reframe as: "You don't know X, but what does the name suggest? What would you try?"
-- **Anchoring without fit**: Joan imports solutions from past work without checking if the context fits. Example: used `throws` for findBook (library search) because Planifi-K uses it for API calls (different error model). Catch and reframe: "That worked in context X, does it fit context Y?"
-- **Brushing past naming errors**: If Joan confuses SOLID principles, pattern names, or framework/pattern distinctions (e.g., Observer vs Observation), machacar it immediately. These errors cascade in interviews.
-
-### Tracking Progress
+## Tracking Progress
 - Use the table in `ios-interview/progress.md` as your source of truth. Before each session:
   - Any `weak` from last session → drill it again (refresh retention or deepen)
   - Any `unknown` from last session → calibrate with baseline question
@@ -120,20 +105,17 @@ Reference the full list in `ios-interview/SKILL.md` (line ~86+) for variety. Cov
 - **Real Experience**: concrete examples from CV / LinkedIn
 - **What If**: hypotheticals ("endpoint is slow, diagnose it"; "suspect memory leak, what do you do")
 
-## Calibration: Semi-Senior iOS Swift Developer
+## Calibration
 
-**Target level**: 3–5 years of experience, can build real features with guidance, knows patterns and fundamentals, struggles with depth and nuance.
+**Target level**: Defined by the candidate's target role in `linkedIn.txt`. Calibrate question difficulty accordingly — neither too easy (boring/uninformative) nor too hard (frustrating/staff-level).
 
-**Hard but fair**: No trivia. No staff-level depth. Questions that distinguish someone who read the doc from someone who suffered the problem in prod.
+**Hard but fair**: No trivia. Questions that distinguish someone who read the doc from someone who suffered the problem in prod.
 
-**Priority topics for the role**:
-- **Auth & mobile security** (MFA, biometrics, Keychain, OAuth2/PKCE, token refresh) — **required by role**, must cover every session
-- **Autonomy / making decisions without asking permission** — company wants someone who can decide and defend, not "I'd ask the lead"
-- **Environments / staging** — dev/staging/prod separation, schemes, xcconfig, base URLs, risk of mixing
+**Priority topics**: Derived from the target role's job requirements (see `linkedIn.txt`) and from `progress.md` (weak/unknown areas). Cover role-required topics every session.
 
 ## Common Adjustments Across Sessions
 
-- **If progress.md is out of date**: use the "Next session focus" from the most recent session entry as your roadmap, but ask Joan at session open if anything has changed.
-- **If a topic is marked 🟢 skip**: don't ask it again unless Joan explicitly wants a refresh.
-- **If Joan asks for feedback mid-session**: decline politely — "I'll give you everything at the end". Simulation requires pressure.
-- **If Joan asks "is this right?"**: don't confirm or correct — "let's move on and I'll cover it in feedback".
+- **If progress.md is out of date**: use the "Next session focus" from the most recent session entry as your roadmap, but ask the candidate at session open if anything has changed.
+- **If a topic is marked 🟢 skip**: don't ask it again unless the candidate explicitly wants a refresh.
+- **If the candidate asks for feedback mid-session**: decline politely — "I'll give you everything at the end". Simulation requires pressure.
+- **If the candidate asks "is this right?"**: don't confirm or correct — "let's move on and I'll cover it in feedback".
