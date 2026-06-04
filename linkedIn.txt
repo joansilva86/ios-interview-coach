@@ -1,0 +1,201 @@
+=====================================================================
+LinkedIn Profile - Joan Silva
+=====================================================================
+Last updated: 2026-05-08
+Source of truth: Joan_Silva_CV.tex (richer than the CV)
+
+
+=====================================================================
+HEADER
+=====================================================================
+Name:        Joan Silva
+Headline:    Mobile Developer
+Location:    Buenos Aires, Argentina
+Profile URL: linkedin.com/in/joan-swift-kotlin
+Email:       joan.silva.1986@gmail.com
+Phone:       +54 9 11 2577-7224
+
+
+=====================================================================
+ABOUT
+=====================================================================
+Mobile Developer with 8+ years of experience, currently building real-time tracking iOS apps at Planifi-K with Swift, SwiftUI and Clean Architecture. I started on Android at Comdata (5+ apps delivered, 15-module Java-to-Kotlin migration), then transitioned to iOS at El Comercio in 2020, where I scaled a white-label newspaper used by 5+ publishing brands and raised the crash-free users metric from ~95% to 99%+ by fixing memory leaks.
+
+I write with TDD (80%+ coverage), automate CI/CD on Bitbucket Pipelines, and apply MVVM, SOLID and patterns like Coordinator, Repository, Factory and Dependency Injection. I've mentored 3+ junior iOS developers through pair programming and code reviews.
+
+Open to connect with other mobile developers, recruiters and engineering leaders.
+
+
+=====================================================================
+EXPERIENCE
+=====================================================================
+
+----- PLANIFI-K -----
+Title:     iOS Developer
+Type:      Full-time
+Dates:     Apr 2024 - Present
+Location:  Argentina · Hybrid
+
+Bullets:
+- Develop a real-time tracking iOS application supporting 200+ active devices, built in Swift and SwiftUI with live location updates via Core Location and push notifications through Firebase.
+- Designed and implemented a modular, reusable iOS SDK following Clean Architecture principles, with clear public interface abstraction and comprehensive DocC documentation.
+- Apply MVVM architecture, SOLID principles and design patterns (Coordinator, Repository, Factory, Dependency Injection) to improve maintainability and scalability.
+- Implement unit testing with TDD using XCTest and Swift Testing, achieving 80% coverage of business logic and reducing regressions between releases.
+- Automate CI/CD workflows with Fastlane on Bitbucket Pipelines, running unit and E2E tests on every push and enabling ~20 releases per year on a biweekly cadence.
+
+
+----- EL COMERCIO -----
+Title:     iOS Developer
+Type:      Full-time
+Dates:     Oct 2020 - Mar 2024
+Location:  Lima, Peru · Hybrid
+
+Bullets:
+- Developed and scaled a white-label newspaper iOS application in Swift, serving 5+ publishing brands from a single configurable architecture.
+- Integrated Firebase services (Analytics, Crashlytics, Remote Config) and 4 REST APIs.
+- Integrated StoreKit subscriptions to power the app's paywall and premium content access.
+- Fixed 3+ memory leaks causing recurring crashes, raising the crash-free users metric from ~95% to over 99%.
+- Mentored 3+ junior iOS developers through pair programming and code reviews, sharing iOS best practices.
+- Shipped features every 2 weeks across 70+ Scrum sprints, collaborating with product, design and backend teams.
+
+
+----- COMDATA -----
+Title:     Android Developer
+Type:      Full-time
+Dates:     Oct 2017 - Sep 2020
+Location:  (to confirm - likely Buenos Aires, Argentina)
+
+Bullets:
+- Developed 5+ native Android applications in Kotlin delivered to business clients.
+- Migrated 15 legacy modules from Java to Kotlin with unit tests, reducing regression issues across releases.
+- Authored technical documentation and integration guides used by 5+ teams, accelerating onboarding.
+- Participated in 20+ planning and estimation sessions, aligning technical scope with business client requirements.
+
+
+=====================================================================
+EDUCATION
+=====================================================================
+Software Engineering
+Universidad Tecnológica Nacional (UTN) - Facultad Regional Buenos Aires (FRBA)
+(no dates — decide whether to add start/end year or "ongoing")
+
+
+=====================================================================
+LANGUAGES
+=====================================================================
+- Spanish: Native or bilingual proficiency
+- English: B2 - Upper Intermediate
+
+
+=====================================================================
+SKILLS
+=====================================================================
+(LinkedIn allows up to 50 skills — take advantage)
+
+Languages:
+- Swift
+- Kotlin
+
+iOS Frameworks:
+- SwiftUI
+- Core Data
+- Core Location
+- MapKit
+- URLSession
+- XCTest
+- StoreKit
+- Swift Concurrency
+
+Architecture:
+- MVVM
+- MVI
+- Clean Architecture
+- SOLID principles
+- Design patterns
+- Clean code
+
+Testing:
+- Unit Testing
+- TDD
+- XCTest
+- Swift Testing
+
+Tools:
+- Git
+- Firebase
+- REST APIs
+- Postman
+- SwiftLint
+- Swift Package Manager
+- Push Notifications
+- Deep Linking
+- Bitbucket Pipelines
+- Fastlane
+- Jira
+- Figma
+
+AI Tools:
+- Claude Code
+
+Methodologies:
+- Agile (Scrum, Kanban)
+
+
+=====================================================================
+PENDING SECTIONS TO COMPLETE (LinkedIn-only)
+=====================================================================
+
+[ ] FEATURED
+    Posts, projects, demos, articles. Ideas:
+    - Link to portfolio (if you have one)
+    - Planifi-K SDK demo (if public)
+    - A technical post you wrote
+
+[ ] CERTIFICATIONS
+    Do you have any?
+    - Apple / Stanford CS193p iOS courses
+    - Coursera, Udemy, Platzi
+    - English certificates (TOEFL, IELTS, EF SET)
+
+[ ] RECOMMENDATIONS
+    Request from:
+    - Current manager (Planifi-K)
+    - Previous manager (El Comercio)
+    - A junior you mentored
+    - A cross-functional colleague (PM, Designer)
+
+[ ] PROJECTS
+    Side projects, open source, public GitHub repos
+
+[ ] COURSES
+    List relevant courses (Stanford CS193p, Hacking with Swift, Kodeco, etc.)
+
+[ ] VOLUNTEER EXPERIENCE
+    Tutoring, talks, formal mentoring outside of work
+
+
+=====================================================================
+ITEMS TO REVIEW / DECIDE
+=====================================================================
+
+1. HEADLINE - currently "Mobile Developer". Alternatives:
+   - "iOS Developer | Swift, SwiftUI, Clean Architecture"
+   - "Senior iOS Developer | 8+ years building native apps"
+   - Keep "Mobile Developer" (consistent with CV)
+
+2. EL COMERCIO - number of REST APIs:
+   - CV says 4 (inflated vs reality of 3)
+   - Decide whether LinkedIn uses 3 (real) or 4 (aligned with CV)
+
+3. Additional SKILLS to add (only if you truly used them):
+   - UIKit, Auto Layout (almost certainly at El Comercio)
+   - Combine
+   - Biometrics (Face ID / Touch ID)
+   - GraphQL (used at El Comercio Consumer API)
+   - Objective-C (legacy code at El Comercio?)
+   - CocoaPods
+
+4. More detailed / extra bullets that don't fit in the CV (LinkedIn allows more):
+   - Any technical angle cut from the CV for space?
+
+5. EDUCATION - decide whether to add dates (start year - end year / "ongoing")
