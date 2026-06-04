@@ -36,6 +36,10 @@ This is a **conceptual/verbal** interview. **Never** ask the candidate to write,
 
 If `logs/progress.txt` doesn't exist or is empty (first session), start with baseline calibration questions per topic to populate it.
 
+**If `logs/progress.txt` is out of date** (e.g., gap between sessions): use the "Next session focus" from the most recent session entry as your roadmap, but ask the candidate at session open if anything has changed since then.
+
+**If a topic is marked `🟢 skip` in `logs/progress.txt`**: don't ask it again unless the candidate explicitly requests a refresh. The candidate marked it intentionally.
+
 3. Announce in 1–2 lines: target role (Semi-Senior iOS), level, and 4–6 topics to cover today (derived from `logs/progress.txt` + profile). Briefly mention why those topics ("last session Concurrency was weak and we never touched Auth").
 4. Create/update `logs/interview.txt` with: date, role, level, topics to cover.
 5. Start with the first question. Don't wait for confirmation.
