@@ -1,11 +1,11 @@
 ---
 name: save-progress
 description: >
-  Persists the most recent interview session's data into the interview history CSV.
-  Reads ONLY logs/current_interview.txt (does NOT access any candidate personal
-  information). Appends one row per topic touched in the session to
-  logs/interview_history.txt (CSV format). Save-only — no feedback, no verdict,
-  no recommendations delivered to the user.
+  Persists the most recent interview session's data into the interview history CSV,
+  then clears the working session log. Reads ONLY logs/current_interview.txt (does NOT
+  access any candidate personal information). Appends one row per topic touched in the
+  session to logs/interview_history.txt (CSV format), then deletes logs/current_interview.txt
+  to make room for the next session. Save-only — no feedback, no verdict, no recommendations.
   Use when the candidate says "save the progress", "save the session",
   "save my interview", "log the session", or invokes /save-progress.
 ---
@@ -97,7 +97,11 @@ For each subtopic touched in the session, roll up the per-question categories:
 7. **Append to `logs/interview_history.txt`**:
    - If file doesn't exist: create it with the header row, then append data rows.
    - If file exists: append data rows only (no duplicate header).
-8. **Output confirmation** to the user (see below).
+8. **Verify the append succeeded**: confirm the new rows are present in `logs/interview_history.txt` before proceeding.
+9. **Delete `logs/current_interview.txt`**: only after step 8 confirms the data is safely in history. This clears the working session log to make room for the next interview.
+10. **Output confirmation** to the user (see below).
+
+**Critical ordering rule**: NEVER delete `logs/current_interview.txt` before verifying the data was appended successfully. If step 7 fails, leave `current_interview.txt` intact so the data isn't lost.
 
 ## Idempotency
 
@@ -108,10 +112,11 @@ Before writing, check if rows for the current `session_date` already exist in `l
 
 ## What the user sees (the brief confirmation)
 
-After appending to `logs/interview_history.txt`, output ONLY this format:
+After appending to `logs/interview_history.txt` AND deleting `logs/current_interview.txt`, output ONLY this format:
 
 ```
 ✓ Session saved to logs/interview_history.txt
+✓ logs/current_interview.txt cleared (ready for next session)
 
 Session: YYYY-MM-DD (Session N)
 Rows appended: M
@@ -128,8 +133,10 @@ If the user wants feedback or a study plan, they invoke a different skill.
 - **Never read `candidate-information/`** — this skill does not need personal info.
 - **Never deliver a verdict** (qualifies / does not qualify).
 - **Never give recommendations** or commentary on performance.
-- **Never overwrite or delete existing rows**. Append-only.
+- **Never overwrite or delete existing rows in `interview_history.txt`**. Append-only.
+- **Never delete `logs/current_interview.txt` before verifying** the append to `interview_history.txt` succeeded. Data loss risk is critical here — verify, then delete.
 - **Never invent data**. If a Q&A pair is ambiguous (no clear topic/subtopic), skip it and note in the confirmation that N questions were skipped.
 - **Never run** if `logs/current_interview.txt` is missing or empty — tell the user there's nothing to save and stop.
 - **Never silently duplicate** session rows. Check for existing session_date before appending.
 - **Never modify the CSV schema** without updating this SKILL.md first.
+- **Never delete any file other than `logs/current_interview.txt`**. This skill cleans up only the working session log.

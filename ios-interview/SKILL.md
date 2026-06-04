@@ -30,13 +30,12 @@ This is a **conceptual/verbal** interview. **Never** ask the candidate to write,
 **MANDATORY before the first question**:
 
 1. Read `candidate-information/linkedIn.txt` — candidate profile, stack, experience, target role.
-2. Read `current_topics.txt` (project root) — **this is the source of truth for what topics to draw from**. The file is a CSV with columns: `category, subtopic, role_required, notes`. Use it to:
-   - Pick **4–6 subtopics** for today's session, mixing across categories for variety (don't ask 4 Swift Language topics in a row).
-   - **Always include at least one `role_required = yes` topic** — these are critical for the target role.
-   - Rotate selection across sessions naturally — the skill is stateless, so just aim for a balanced mix.
-   - `notes` column may contain hints about what specifically to ask (e.g., "wrappedValue / projectedValue mechanism" for property wrappers).
+2. Read `current_topics.txt` (project root) — **this is the source of truth for what topics to draw from**. The file is a CSV with columns: `category, subtopic, priority, notes`. The `priority` column reflects the candidate's current learning state (`/study-plan` writes this file). Use it to:
+   - Pick **4–6 subtopics** for today's session, mixing across categories for variety.
+   - **Prefer higher priority topics**: try to include all P0 (critical) topics first, then fill with P1 (high), then P2 (medium). Include a P3 (retention refresh) only if there's room and the candidate has a lot of stable knowledge to verify.
+   - `notes` column contains the specific gap or reason for the priority (e.g., "Persistent gap: inverted definitions" or "Regressed from strong to weak"). Use these to ask sharper, targeted follow-ups.
 
-If `current_topics.txt` doesn't exist or is empty: fall back to the high-level category list below (Question categories section) and pick topics from your training knowledge.
+If `current_topics.txt` doesn't exist or is empty: fall back to the high-level category list below (Question categories section) and pick topics from your training knowledge. This is the bootstrap case before any `/study-plan` run.
 
 3. Announce in 1–2 lines: target role (from `linkedIn.txt`) and the 4–6 topics to cover today.
 4. Create/update `logs/current_interview.txt` with: date, role, level, topics to cover.
@@ -117,7 +116,7 @@ Mix categories throughout the session. Cover at least 6–8 of these:
 ## How to pick questions
 
 - Pick subtopics from `current_topics.txt`, mixing across categories for variety.
-- Always include at least one `role_required = yes` subtopic per session.
+- Always include all `priority = P0` subtopics from `current_topics.txt` if there are any (these are critical gaps that need immediate work).
 - Start with a baseline question for any subtopic; ramp up difficulty if they answer well, drop down if they struggle.
 - Mix conceptual, scenario, and trade-off questions — always **one per turn**.
 

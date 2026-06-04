@@ -1,25 +1,24 @@
 ---
 name: study-plan
 description: >
-  Generates a prioritized, actionable study plan for the candidate between
-  interview sessions. Reads ONLY logs/interview_history.txt — the cumulative
-  history of all past sessions in CSV format. Outputs concrete time-boxed
-  study tasks ordered by priority (weak topics first, with regressions and
-  persistent gaps prioritized).
-  Use when the candidate says "what should I study?", "give me a study plan",
-  "what to focus on between sessions", "study recommendations", or invokes
-  /study-plan.
+  Analyzes the cumulative interview history and produces two outputs:
+  (1) silently rewrites current_topics.txt (project root) with a fresh prioritized
+  topic list derived from history, and (2) delivers progress feedback to the
+  candidate — improvements, persistent gaps, regressions, and solid retention.
+  Reads ONLY logs/interview_history.txt — no candidate personal info, no
+  topic list dependency.
+  Use when the candidate says "give me a study plan", "what should I focus on",
+  "how am I doing", "progress feedback", or invokes /study-plan.
 ---
 
-# Study Plan Generator
+# Study Plan & Progress Feedback
 
-You are generating an actionable study plan for the candidate to follow **between interview simulation sessions**. The goal is to convert gaps surfaced during interviews into concrete, time-boxed study tasks — not generic advice.
+You analyze the candidate's interview history and do two things:
 
-## When this skill runs
+1. **Silently rewrite `current_topics.txt`** (project root) — this becomes the new prioritized topic list for the next `/ios-interview` session.
+2. **Deliver progress feedback** to the candidate — trends across sessions (improvements, persistent gaps, regressions, solid retention).
 
-- Standalone, not tied to a session. The candidate can invoke it any time.
-- Typical cadence: after a session closes (when `logs/interview_history.txt` has fresh data), or before a planned study block.
-- Output is a study plan — not coaching feedback during an interview.
+The candidate sees the feedback. The file write is silent (no commentary about it beyond a one-line summary at the end).
 
 ## Mandatory inputs
 
@@ -27,116 +26,104 @@ This skill reads **only one file**:
 
 - **`logs/interview_history.txt`** — CSV with one row per (session, subtopic). Schema: `session_date, session_id, topic, subtopic, confidence, questions_asked, on_point_count, notes`. The cumulative record of all past sessions.
 
-This skill does **not** access:
-- Any candidate personal information (no `linkedIn.txt`, no `candidate_stories.md`)
-- The topic list (`current_topics.txt`) — works purely from what's been practiced
-- The current session log (`current_interview.txt`) — assumes the latest session has already been appended to history via `/save-progress`
+This skill does **not** access any other file. No personal info, no existing topic list, no current session log.
 
-**Workflow expectation**: run `/save-progress` first after a session to persist the latest data, then `/study-plan` to generate recommendations based on the updated history.
+**If `logs/interview_history.txt` is missing or empty**: tell the candidate there's no history to base a plan on — they should run `/ios-interview` and `/save-progress` first. Do not write `current_topics.txt`.
 
-**If `logs/interview_history.txt` is missing or empty**: tell the user there's no history to base a plan on — they should run an interview session and save progress first.
+## Prioritization logic (drives both outputs)
 
-## Prioritization logic
+For each subtopic in history, compute a priority tier:
 
-Rank topics by two signals derived from `interview_history.txt`:
-
-### 1. Confidence gap (current state, most recent row per subtopic)
+### Confidence (most recent row per subtopic)
 - **`weak`** → high priority
 - **`unknown`** → high priority (baseline never solidified)
-- **`ok`** → medium priority if eroding (was `strong` in an earlier row, now `ok`)
-- **`strong`** → skip unless 3+ weeks since last practice (retention check via the most recent `session_date`)
-- **`skip`** → do not include in the plan; the user marked it intentionally
+- **`ok`** → medium priority if eroding (older rows show `strong` → now `ok`)
+- **`strong`** → low priority unless 3+ weeks since last practice (retention check)
+- **`skip`** → exclude entirely; the candidate marked it intentionally
 
-### 2. Recency / erosion (compare older rows to the most recent row for each subtopic)
-- Confidence **regressed** across sessions (e.g., `strong` → `weak`, `ok` → `weak`) → high priority (recall is fading)
-- Subtopic appeared as `weak` in 3+ sessions in a row → high priority (persistent gap — current approach isn't working, needs a different angle)
-- Subtopic was just covered in the latest session and is now `strong` → skip this cycle (already retained)
+### Recency / erosion (compare older rows to most recent)
+- Confidence **regressed** across sessions (`strong` → `weak`, `ok` → `weak`) → bump up one tier
+- Subtopic was `weak` in 3+ sessions in a row → bump to P0 (persistent gap)
+- Subtopic just covered in latest session and now `strong` → drop one tier (already retained)
 
-Combine into a 4-tier priority:
-
+### Priority tiers
 - **P0 (Critical)**: persistent gap (3+ sessions weak) OR significant regression (`strong` → `weak`)
 - **P1 (High)**: currently `weak` or `unknown` (single occurrence) OR mild regression (`strong` → `ok`)
-- **P2 (Medium)**: `ok` with notes indicating gaps, OR returning to `weak` after recent improvement
+- **P2 (Medium)**: `ok` with notes indicating gaps
 - **P3 (Low)**: `strong` retention refresh after 3+ weeks of no practice
 
-## Output format
+## Output 1 (silent): rewrite `current_topics.txt`
 
-Structure the plan as follows:
+After computing priorities, **replace** `current_topics.txt` (in the project root) entirely with a fresh CSV.
 
-```markdown
-# Study Plan — [date range, e.g., "Week of 2026-06-04"]
+### Schema
 
-## Summary
-- **Total recommended effort**: X hours over Y days
-- **Top 3 focus areas**: brief 1-line each
-- **Skip this cycle**: topics that are solid + recently practiced (avoid over-drilling)
-
-## P0 — Critical (do these first)
-For each topic:
-### [Topic name]
-- **Why it's P0**: [persistent gap / significant regression / both]
-- **Current state**: [quote from logs/interview_history.txt — e.g., "weak; couldn't recall kSecAttrAccessible values"]
-- **Concrete actions**:
-  1. [Specific action — e.g., "Write a custom @Clamped property wrapper from scratch (no reference)"]
-  2. [Specific action — e.g., "Read Apple's Keychain Services docs section on access controls"]
-  3. [Specific action — e.g., "Drill flashcards: kSecAttrAccessibleAfterFirstUnlock vs WhenUnlocked"]
-- **Time**: [estimate, e.g., "1h drill + 2x 15min daily review for a week"]
-- **Done when**: [observable criterion — e.g., "Can name 4 kSecAttrAccessible values + access vs refresh mapping without notes"]
-
-## P1 — High
-(Same structure as P0)
-
-## P2 — Medium
-(Brief — 1-2 actions per topic, time estimate, done-when criterion)
-
-## P3 — Retention refreshes
-(One-liner each — just a flashcard or quick re-explain to verify recall)
-
-## Sequencing notes
-- [Topic A] blocks [Topic B] — do A first because [reason]
-- [Topic C] is best done with code, not reading — schedule for a 1h block, not commute time
-- Suggested order: P0 → P1 (interleaved) → P2 → P3
+```csv
+category,subtopic,priority,notes
 ```
 
-## Rules for "concrete actions"
+| Column | Description |
+|--------|-------------|
+| `category` | High-level topic group (e.g., "Architecture", "Swift Language", "Security") — taken from the `topic` column in history |
+| `subtopic` | Specific topic (taken from `subtopic` column in history) |
+| `priority` | `P0` \| `P1` \| `P2` \| `P3` — derived from the prioritization logic above |
+| `notes` | Short description of why it's prioritized (e.g., "Persistent gap: inverted definitions in 3 sessions" or "Regressed from strong to weak") |
 
-**Bad action** (vague):
-- "Study property wrappers"
-- "Review Keychain"
-- "Practice testing"
+### Rules
 
-**Good action** (specific, observable):
-- "Write `@Clamped(min:max:)` property wrapper from memory. Should compile + work for `@Clamped(min: 0, max: 100) var volume = 50`"
-- "Memorize: access token → `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`; refresh token → `kSecAttrAccessibleWhenUnlockedThisDeviceOnly + SecAccessControl.userPresence`. Flashcard drill 5 min/day for a week."
-- "Write a Swift Testing test for LoginViewModel with success + error cases. Mock must be `class` (not struct). Use `@Test func name() async throws` + `#expect(...)`."
+- **Replace the entire file** with the new content (overwrite, not append).
+- **One row per subtopic** that has been practiced at least once. Subtopics with confidence `skip` are excluded entirely.
+- **Sort rows by priority** (P0 first, then P1, P2, P3), then by category alphabetically.
+- **Quote any field** containing commas or double quotes per CSV rules (RFC 4180).
+- **Do not include topics that haven't been practiced** — this skill only knows what's in history.
 
-Every action should answer: **What exactly do I do? How will I know when I'm done?**
+## Output 2 (to the user): progress feedback
 
-## Time estimates
+After writing the file, deliver a structured progress report. This is the main user-facing output.
 
-Use these buckets, don't over-precise:
-- **5 min**: flashcard review, single concept check
-- **15 min**: read one doc section, watch one short video
-- **30 min**: small code exercise, focused drill
-- **1h**: substantial code exercise, deep doc read + notes
-- **Multi-session**: complex topic needing multiple sittings (split it explicitly)
+### Format
 
-## What to skip / avoid
+```
+=== Progress Feedback ===
 
-- **Don't list every weak topic** — pick the top 5-8 across all priorities. More than that = unactionable.
-- **Don't recommend "watch videos"** unless naming a specific resource. Vague resource hunts kill momentum.
-- **Don't pad with P3 retention refreshes** — only include if the topic is at real risk of fading.
-- **Don't repeat the interview's veredicto** — the candidate already has that. Focus on actions, not assessment.
+📈 Improvements
+- [subtopic]: [old confidence] → [new confidence] (over N sessions)
+- ...
+(omit section if no improvements)
 
-## Tone and length
+⚠️ Persistent gaps (3+ sessions weak)
+- [subtopic]: [brief description of the gap from notes column]
+- ...
+(omit section if no persistent gaps)
 
-- **Direct, actionable, no fluff.** This is a study plan, not coaching.
-- **Total length**: ~1-2 pages max. If longer, you're listing too many topics.
-- **Quote logs/interview_history.txt** when stating "current state" — anchors recommendations in real session data, not generic advice.
-- **Don't recommend interview practice** — that's what `ios-interview` is for. This skill is for **between-session study**.
+📉 Regressions
+- [subtopic]: [old confidence] → [new confidence] ([weeks/sessions] since last practice)
+- ...
+(omit section if no regressions)
 
-## Closing
+✅ Solid retention
+- [subtopic]: N sessions strong
+- ...
+(omit section if nothing is solidly retained)
 
-End the plan with:
-1. **Suggested next interview focus**: 3-4 topics to drill in the next `/ios-interview` session (so the candidate sees the loop close)
-2. **Re-run this skill when**: e.g., "after 5+ hours of study completed, or after the next interview session"
+---
+current_topics.txt updated for next session: X P0 / Y P1 / Z P2 / W P3
+```
+
+### Content rules
+
+- **Concrete, not generic.** Use actual subtopic names from history, not categories.
+- **Quote notes from history** when describing gaps — anchor in real data, don't invent.
+- **Keep each bullet to one line.** No multi-line analysis per bullet.
+- **Omit empty sections.** If there are no regressions, don't write "📉 Regressions (none)".
+- **No recommendations or study tasks.** The actionable next step is the updated `current_topics.txt` — `/ios-interview` will use it.
+- **No verdict.** Don't say "qualifies" or "doesn't qualify" — that's a separate feedback skill's job.
+
+## Do not
+
+- **Never read** any file other than `logs/interview_history.txt`.
+- **Never preserve** the old `current_topics.txt` content — this skill is the owner of that file. Replace, don't merge.
+- **Never include subtopics not in history** in `current_topics.txt`. If the candidate wants to add a topic that hasn't been practiced yet, they edit the file manually.
+- **Never deliver a verdict, recommendation, or study task list.** Progress feedback only.
+- **Never run** if `logs/interview_history.txt` is missing or empty. Tell the candidate to run an interview and save progress first.
+- **Never invent improvements, regressions, or retention claims** that aren't backed by rows in history.

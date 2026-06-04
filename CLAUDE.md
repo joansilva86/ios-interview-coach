@@ -25,7 +25,7 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 ## Project Structure
 
 ```
-current_topics.txt            — curated CSV of subtopics for ios-interview to draw from (tracked)
+current_topics.txt            — prioritized CSV of subtopics for ios-interview to draw from. Written by study-plan based on interview_history.txt. Seed file (with role_required column) can be edited manually before first /study-plan run. (tracked)
 
 candidate-information/        — candidate profile data (tracked)
   ├── linkedIn.txt            — CV / target role / stack

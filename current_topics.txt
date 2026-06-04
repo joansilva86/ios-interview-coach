@@ -1,107 +1,107 @@
-category,subtopic,role_required,notes
-Theory,SOLID principles,no,5 principles with iOS examples
-Theory,Design patterns,no,GoF + when each applies
-Theory,TDD red-green-refactor,no,
-Theory,Code smells,no,
-Theory,Clean Code,no,
-Theory,Big O notation,no,
-Theory,DRY / KISS / YAGNI,no,
-Theory,Concurrency vs parallelism,no,
-Theory,Idempotency,no,
-Theory,ACID vs BASE,no,
-Swift Language,Value vs reference types,no,
-Swift Language,Generics,no,
-Swift Language,Protocols and associated types,no,
-Swift Language,some vs any,no,opaque vs existential
-Swift Language,Result type,no,
-Swift Language,Error handling,no,throws / Result / Optional decision
-Swift Language,Property wrappers,no,wrappedValue / projectedValue mechanism
-Swift Language,Closures and escaping,no,
-Swift Language,Key paths,no,
-Memory & ARC,weak vs unowned,no,
-Memory & ARC,Retain cycles,no,closures / delegates / parent-child
-Memory & ARC,Capture lists,no,
-Swift Concurrency,async/await,no,
-Swift Concurrency,Task and Task.detached,no,
-Swift Concurrency,Task cancellation,no,cooperative cancellation
-Swift Concurrency,async let,no,
-Swift Concurrency,TaskGroup,no,
-Swift Concurrency,Continuations,no,withCheckedContinuation
-Swift Concurrency,Actors and @MainActor,no,
-Swift Concurrency,Sendable,no,
-Frameworks,SwiftUI state,no,@State / @Binding / @StateObject / @ObservedObject / @EnvironmentObject
-Frameworks,SwiftUI view identity,no,
-Frameworks,SwiftUI performance,no,"List, LazyVStack, .equatable"
-Frameworks,NavigationStack,no,
-Frameworks,UIKit lifecycle,no,
-Frameworks,Combine basics,no,
-Frameworks,Combine vs async/await,no,
-Architecture,MVVM,no,
-Architecture,MVI vs MVVM,no,
-Architecture,Clean Architecture,no,
-Architecture,Coordinator pattern,no,
-Architecture,Dependency Injection,no,
-Architecture,Repository vs Service vs UseCase,no,
-Architecture,SwiftUI navigation patterns,no,
-Testing,XCTest basics,no,
-Testing,Swift Testing syntax,no,@Test / #expect / async throws
-Testing,Async tests,no,
-Testing,Mocks / Stubs / Spies / Fakes,no,
-Testing,Snapshot testing,no,
-Testing,TDD what to test,no,
-Testing,Test coverage,no,
-DevOps / CI-CD,Bitbucket Pipelines,no,
-DevOps / CI-CD,Fastlane,no,
-DevOps / CI-CD,Code signing,no,
-DevOps / CI-CD,TestFlight,no,"internal vs external, build expiration"
-DevOps / CI-CD,SwiftLint,no,
-Security,Keychain accessibility,yes,kSecAttrAccessible values
-Security,Keychain + Secure Enclave,yes,
-Security,Biometric authentication,yes,LocalAuthentication / Face ID / Touch ID
-Security,OAuth2 + PKCE,yes,authorization code flow for mobile
-Security,JWT,yes,"HS256 vs RS256, alg none, refresh rotation"
-Security,Token storage,yes,access vs refresh distinction
-Security,OWASP MASVS,yes,
-Security,Certificate pinning,yes,
-Security,Deep link validation,yes,
-Security,Screenshot prevention,no,
-Persistence,Core Data contexts,no,"merge policies, background work"
-Persistence,SwiftData basics,no,
-Persistence,UserDefaults pitfalls,no,when NOT to use
-Persistence,SQLite basics,no,
-Persistence,Database indexing,no,
-Networking,URLSession,no,
-Networking,Codable,no,
-Networking,Network error handling,no,
-Networking,Retries with backoff,no,
-Networking,Caching strategies,no,
-Networking,Token refresh,no,
-System Design,Paginated feed,no,
-System Design,Offline-first + sync,no,
-System Design,Push notifications,no,
-System Design,Deep linking,no,
-System Design,Real-time chat,no,
-Soft Skills,Code reviews,no,what to look for / how to give feedback
-Soft Skills,Mentoring juniors,no,
-Soft Skills,Documentation,no,
-Soft Skills,Tech debt prioritization,no,
-Soft Skills,Estimation,no,story points / Fibonacci / spikes
-Trade-offs,UIKit vs SwiftUI,no,
-Trade-offs,Core Data vs SwiftData,no,
-Trade-offs,MVVM vs MVI,no,
-Anti-patterns,SwiftUI anti-patterns,no,
-Anti-patterns,Architecture anti-patterns,no,
-Anti-patterns,Concurrency anti-patterns,no,
-Real Experience,Most complex feature,no,
-Real Experience,Production incident,no,
-Real Experience,Mentoring story,no,
-What If,Endpoint is slow diagnosis,no,
-What If,Suspect memory leak,no,
-What If,Race condition in prod,no,
-What If,Critical bug Friday 6pm,yes,autonomy signal
-Autonomy,Ambiguous feature start,yes,decides without lead
-Autonomy,PO unavailable edge case,yes,defines behavior independently
-Autonomy,Critical decision under pressure,yes,
-Environments,Dev / staging / prod separation,yes,
-Environments,Schemes and xcconfig,yes,
-Environments,Risk of mixing environments,yes,
+category,subtopic,priority,notes
+Theory,SOLID principles,P3,5 principles with iOS examples
+Theory,Design patterns,P3,GoF + when each applies
+Theory,TDD red-green-refactor,P3,
+Theory,Code smells,P3,
+Theory,Clean Code,P3,
+Theory,Big O notation,P3,
+Theory,DRY / KISS / YAGNI,P3,
+Theory,Concurrency vs parallelism,P3,
+Theory,Idempotency,P3,
+Theory,ACID vs BASE,P3,
+Swift Language,Value vs reference types,P3,
+Swift Language,Generics,P3,
+Swift Language,Protocols and associated types,P3,
+Swift Language,some vs any,P3,opaque vs existential
+Swift Language,Result type,P3,
+Swift Language,Error handling,P3,throws / Result / Optional decision
+Swift Language,Property wrappers,P3,wrappedValue / projectedValue mechanism
+Swift Language,Closures and escaping,P3,
+Swift Language,Key paths,P3,
+Memory & ARC,weak vs unowned,P3,
+Memory & ARC,Retain cycles,P3,closures / delegates / parent-child
+Memory & ARC,Capture lists,P3,
+Swift Concurrency,async/await,P3,
+Swift Concurrency,Task and Task.detached,P3,
+Swift Concurrency,Task cancellation,P3,cooperative cancellation
+Swift Concurrency,async let,P3,
+Swift Concurrency,TaskGroup,P3,
+Swift Concurrency,Continuations,P3,withCheckedContinuation
+Swift Concurrency,Actors and @MainActor,P3,
+Swift Concurrency,Sendable,P3,
+Frameworks,SwiftUI state,P3,@State / @Binding / @StateObject / @ObservedObject / @EnvironmentObject
+Frameworks,SwiftUI view identity,P3,
+Frameworks,SwiftUI performance,P3,"List, LazyVStack, .equatable"
+Frameworks,NavigationStack,P3,
+Frameworks,UIKit lifecycle,P3,
+Frameworks,Combine basics,P3,
+Frameworks,Combine vs async/await,P3,
+Architecture,MVVM,P3,
+Architecture,MVI vs MVVM,P3,
+Architecture,Clean Architecture,P3,
+Architecture,Coordinator pattern,P3,
+Architecture,Dependency Injection,P3,
+Architecture,Repository vs Service vs UseCase,P3,
+Architecture,SwiftUI navigation patterns,P3,
+Testing,XCTest basics,P3,
+Testing,Swift Testing syntax,P3,@Test / #expect / async throws
+Testing,Async tests,P3,
+Testing,Mocks / Stubs / Spies / Fakes,P3,
+Testing,Snapshot testing,P3,
+Testing,TDD what to test,P3,
+Testing,Test coverage,P3,
+DevOps / CI-CD,Bitbucket Pipelines,P3,
+DevOps / CI-CD,Fastlane,P3,
+DevOps / CI-CD,Code signing,P3,
+DevOps / CI-CD,TestFlight,P3,"internal vs external, build expiration"
+DevOps / CI-CD,SwiftLint,P3,
+Security,Keychain accessibility,P1,kSecAttrAccessible values
+Security,Keychain + Secure Enclave,P1,
+Security,Biometric authentication,P1,LocalAuthentication / Face ID / Touch ID
+Security,OAuth2 + PKCE,P1,authorization code flow for mobile
+Security,JWT,P1,"HS256 vs RS256, alg none, refresh rotation"
+Security,Token storage,P1,access vs refresh distinction
+Security,OWASP MASVS,P1,
+Security,Certificate pinning,P1,
+Security,Deep link validation,P1,
+Security,Screenshot prevention,P3,
+Persistence,Core Data contexts,P3,"merge policies, background work"
+Persistence,SwiftData basics,P3,
+Persistence,UserDefaults pitfalls,P3,when NOT to use
+Persistence,SQLite basics,P3,
+Persistence,Database indexing,P3,
+Networking,URLSession,P3,
+Networking,Codable,P3,
+Networking,Network error handling,P3,
+Networking,Retries with backoff,P3,
+Networking,Caching strategies,P3,
+Networking,Token refresh,P3,
+System Design,Paginated feed,P3,
+System Design,Offline-first + sync,P3,
+System Design,Push notifications,P3,
+System Design,Deep linking,P3,
+System Design,Real-time chat,P3,
+Soft Skills,Code reviews,P3,what to look for / how to give feedback
+Soft Skills,Mentoring juniors,P3,
+Soft Skills,Documentation,P3,
+Soft Skills,Tech debt prioritization,P3,
+Soft Skills,Estimation,P3,story points / Fibonacci / spikes
+Trade-offs,UIKit vs SwiftUI,P3,
+Trade-offs,Core Data vs SwiftData,P3,
+Trade-offs,MVVM vs MVI,P3,
+Anti-patterns,SwiftUI anti-patterns,P3,
+Anti-patterns,Architecture anti-patterns,P3,
+Anti-patterns,Concurrency anti-patterns,P3,
+Real Experience,Most complex feature,P3,
+Real Experience,Production incident,P3,
+Real Experience,Mentoring story,P3,
+What If,Endpoint is slow diagnosis,P3,
+What If,Suspect memory leak,P3,
+What If,Race condition in prod,P3,
+What If,Critical bug Friday 6pm,P1,autonomy signal
+Autonomy,Ambiguous feature start,P1,decides without lead
+Autonomy,PO unavailable edge case,P1,defines behavior independently
+Autonomy,Critical decision under pressure,P1,
+Environments,Dev / staging / prod separation,P1,
+Environments,Schemes and xcconfig,P1,
+Environments,Risk of mixing environments,P1,
