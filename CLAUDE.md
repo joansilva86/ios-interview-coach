@@ -22,7 +22,7 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 - **`setup-session/SKILL.md`** — Selects exactly 10 subtopics for the next interview by combining `topic_catalog.csv` (catalog + flags) and `logs/interview_history.csv` (past sessions). Algorithm: gap-first (persistent weaknesses), then recent weak/regressions, then never-asked breadth, then at most 1 retention refresh. Writes the queue to `current_topics.csv` in `interview_history.csv` column order (not importance order).
   - Invoked via `/setup-session` or "pick what to ask next"
 
-- **`custom-session/SKILL.md`** — Manual alternative to `/setup-session`. Asks the candidate which subtopics they want to practice (up to 10), matches them against `topic_catalog.csv` (with fuzzy matching if names are approximate), warns on `ignore`/`deferred`/`pending` flags, and writes `current_topics.csv`.
+- **`custom-session/SKILL.md`** — Manual alternative to `/setup-session`. Asks the candidate which subtopics they want to practice (**exactly 10 required** — loops until met or cancels), matches them against `topic_catalog.csv` (with fuzzy matching if names are approximate), warns on `ignore`/`deferred`/`pending` flags, and writes `current_topics.csv`.
   - Invoked via `/custom-session` or "I want to choose the topics"
 
 - **`study-plan/SKILL.md`** — Reads `logs/interview_history.csv` and delivers progress feedback (improvements, persistent gaps, regressions, solid retention). Read-only — no file writes.

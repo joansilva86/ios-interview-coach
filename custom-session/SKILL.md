@@ -2,7 +2,7 @@
 name: custom-session
 description: >
   Manual alternative to /setup-session. Asks the candidate which subtopics they
-  want to practice (up to 10), matches each entry against topic_catalog.csv —
+  want to practice (exactly 10, looping until met), matches each entry against topic_catalog.csv —
   with fuzzy matching when the input is approximate — and writes the picked
   subtopics to current_topics.csv as the queue for the next /ios-interview.
   Warns (does NOT block) when a picked subtopic is flagged ignore, deferred, or
@@ -30,7 +30,7 @@ This skill does **NOT** read `candidate-information/` or any other file. Manual 
 
 Open with a clear prompt:
 
-> "Which subtopics do you want to practice in the next interview? Up to 10. Send them one per line, or comma-separated. Exact catalog names work best, but rough descriptions are fine — I'll match them."
+> "Which subtopics do you want to practice in the next interview? **Exactly 10 required.** Send them one per line, or comma-separated. Exact catalog names work best, but rough descriptions are fine — I'll match them."
 
 Wait for the candidate's response.
 
@@ -53,11 +53,18 @@ For each entry the candidate sent:
 
 Build a list of confirmed `(topic, subtopic)` pairs.
 
-### 3. Apply the limit
+### 3. Enforce exactly 10 — loop until met
 
-If the candidate sent more than 10 picks (post-matching), keep the **first 10 in the order they gave** and tell them: "You picked N — keeping the first 10 in order." Drop the rest.
+**Exactly 10 subtopics are required. Do not write the file with fewer.**
 
-If they sent fewer than 10, fine — write what they have. `/ios-interview` handles short queues by asking every row and stopping.
+- **If confirmed picks > 10**: keep the first 10 in the order the candidate gave them and tell them: "You picked N — keeping the first 10 in order." Drop the rest. Proceed.
+- **If confirmed picks == 10**: proceed.
+- **If confirmed picks < 10**: tell the candidate how many more they need and ask for them. Example:
+  > "You have 7 confirmed picks so far: <list>. **3 more needed** to reach 10. What else do you want to practice?"
+  Then loop back to step 2 (match the new entries). Keep looping until the count hits 10 (or exceeds it, in which case trim per the first rule).
+- **If the candidate refuses to add more or asks to abort**: do NOT write the file. Tell them: "The skill requires exactly 10 picks. Cancelling without writing `current_topics.csv`. If you'd like a partial pick or algorithmic fill, run `/setup-session` instead."
+
+Do not write `current_topics.csv` until the confirmed pick count is exactly 10.
 
 ### 4. Flag warnings (don't block)
 
@@ -118,7 +125,7 @@ That's it. No analysis, no recommendations.
 - **Never block** a pick because of its flag — warn only.
 - **Never invent** a `(topic, subtopic)` pair not in the catalog. If a user request can't be matched even after fuzzy lookup, drop that entry and tell them.
 - **Never overwrite `topic_catalog.csv`** — the catalog is the source of truth, not editable by this skill.
-- **Never write more than 10 rows** to `current_topics.csv`.
+- **Never write more than 10 rows** to `current_topics.csv`. And never write fewer than 10 either — the skill loops until the pick count is exactly 10, or cancels without writing.
 - **Never preserve** the old `current_topics.csv` content — replace it entirely.
 - **Never assign priorities** — there's no priority column. File order is the only ordering signal.
 - **Never deliver a verdict, recommendation, or progress analysis** — that's `/study-plan`'s job.
