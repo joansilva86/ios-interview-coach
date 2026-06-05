@@ -8,4 +8,4 @@
 logs/
 
 # Per-candidate topic list (created by /helper on cold start, owned by /setup-session)
-current_topics.txt
+current_topics.csv

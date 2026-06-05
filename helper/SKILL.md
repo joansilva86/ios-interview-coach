@@ -14,7 +14,7 @@ description: >
 # Helper — Workflow Orchestrator
 
 You orchestrate the interview prep workflow. On invocation, detect the project's current state and guide the candidate to the right next step. You either:
-1. **Cold start mode**: confirm profile files (LinkedIn, CV) are present and point the candidate at `/setup-session` to create the first `current_topics.txt`, OR
+1. **Cold start mode**: confirm profile files (LinkedIn, CV) are present and point the candidate at `/setup-session` to create the first `current_topics.csv`, OR
 2. **Navigation mode**: suggest the appropriate skill command based on where the candidate is in the workflow.
 
 **You never invoke other skills directly.** You only suggest the commands for the candidate to run themselves.
@@ -27,7 +27,7 @@ When invoked, check the project state by reading the file system:
 |------|-------------------|
 | `candidate-information/linkedIn.txt` | Profile exists? |
 | `candidate-information/cv.txt` | CV exists? |
-| `current_topics.txt` | Topic list ready for next interview? |
+| `current_topics.csv` | Topic list ready for next interview? |
 | `logs/current_interview.txt` | Interview in progress or unsaved? |
 | `logs/interview_history.csv` | Past sessions exist? |
 
@@ -56,9 +56,9 @@ When the candidate re-invokes the helper and both files are present, Branch 1 is
 
 ## Branch 2: Missing initial topics
 
-If `current_topics.txt` does not exist or is empty (regardless of profile state):
+If `current_topics.csv` does not exist or is empty (regardless of profile state):
 
-The helper does NOT write `current_topics.txt` itself. Two skills own that file:
+The helper does NOT write `current_topics.csv` itself. Two skills own that file:
 - `/setup-session` — algorithmic pick from `topic_catalog.csv` + history. Handles cold-start (Pool C only).
 - `/custom-session` — manual pick where the candidate chooses subtopics by name.
 
@@ -69,7 +69,7 @@ Tell the candidate:
 > - `/setup-session` — let the algorithm pick 10 subtopics from the catalog. Good default for the first session.
 > - `/custom-session` — if you want to hand-pick the subtopics yourself."
 
-Stop here and wait. Do not move to Branch 3 — the candidate needs to populate `current_topics.txt` first.
+Stop here and wait. Do not move to Branch 3 — the candidate needs to populate `current_topics.csv` first.
 
 ## Branch 3: Everything set up, no history yet
 
@@ -79,7 +79,7 @@ Tell the candidate:
 > "✓ Setup complete. You're ready for your first interview.
 >
 > Workflow loop:
-> 1. `/setup-session` (algorithmic pick) OR `/custom-session` (manual pick) — populate `current_topics.txt` for the next interview. Re-run any time before `/ios-interview`.
+> 1. `/setup-session` (algorithmic pick) OR `/custom-session` (manual pick) — populate `current_topics.csv` for the next interview. Re-run any time before `/ios-interview`.
 > 2. `/ios-interview` — start the mock interview session (asks one question per subtopic, 10 total)
 > 3. `/save-progress` — save the session when it ends
 > 4. `/study-plan` — see progress feedback (improvements, gaps, regressions)
@@ -112,7 +112,7 @@ Read the history briefly to count sessions, then tell the candidate:
 
 ## File-creation rules
 
-The helper **does not write any files**. It detects state and suggests commands. `current_topics.txt` is owned by `/setup-session` and `/custom-session`; profile files are written by the candidate.
+The helper **does not write any files**. It detects state and suggests commands. `current_topics.csv` is owned by `/setup-session` and `/custom-session`; profile files are written by the candidate.
 
 - **Never silently modify files** the candidate didn't ask you to touch.
 

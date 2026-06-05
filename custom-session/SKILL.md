@@ -4,7 +4,7 @@ description: >
   Manual alternative to /setup-session. Asks the candidate which subtopics they
   want to practice (up to 10), matches each entry against topic_catalog.csv —
   with fuzzy matching when the input is approximate — and writes the picked
-  subtopics to current_topics.txt as the queue for the next /ios-interview.
+  subtopics to current_topics.csv as the queue for the next /ios-interview.
   Warns (does NOT block) when a picked subtopic is flagged ignore, deferred, or
   pending in the catalog. Pure file-write skill once the picks are confirmed.
   Use when the candidate says "I want to choose the topics", "let me pick",
@@ -17,11 +17,12 @@ You let the candidate hand-pick the subtopics for the next interview. This is th
 
 ## Mandatory inputs
 
-This skill reads **only one file**:
+This skill reads **two files**:
 
 - **`topic_catalog.csv`** (project root, tracked) — source of truth. Wide CSV with 3 rows: topics, subtopics, flag (`active|pending|ignore|deferred|mastered`). Used to validate the user's picks and surface fuzzy matches when their input is approximate.
+- **`logs/interview_history.csv`** (optional) — used only to determine the column order for the output. The history's labels (cell values) are ignored — manual picking doesn't use history for ranking. If the file doesn't exist, fall back to `topic_catalog.csv` column order for every pick.
 
-This skill does **NOT** read `logs/interview_history.csv`, `candidate-information/`, or any other file. Manual = manual; history-based ranking is `/setup-session`'s job.
+This skill does **NOT** read `candidate-information/` or any other file. Manual picking ignores history for *what* to ask — but uses it for *what order* to write the queue, so `current_topics.csv` lines up visually with `interview_history.csv`.
 
 ## Workflow
 
@@ -70,25 +71,33 @@ For each confirmed pick, look up its flag in `topic_catalog.csv` row 3:
 
 Never refuse the pick — the candidate's manual override wins. Just surface the flag so they're aware.
 
-### 5. Write `current_topics.txt`
+### 5. Write `current_topics.csv`
 
-Replace `current_topics.txt` (project root) entirely. Schema:
+Replace `current_topics.csv` (project root) entirely. Schema:
 
 ```csv
-category,subtopic,notes
+category,subtopic
 ```
 
-- One row per confirmed pick, **in the order the candidate listed them**.
-- `notes` = `"Manual selection"` (default). For flagged subtopics, append the flag: `"Manual selection (catalog flag: pending review)"`.
+**Row order — match `interview_history.csv` column order** (same convention as `/setup-session`):
+
+1. Read `logs/interview_history.csv` (if it exists) to get the existing subtopic column order.
+2. For each confirmed pick, find its position:
+   - If the subtopic has a column in history: position = column index in history (left-to-right).
+   - If it's never been asked: position = `<max history column index> + <its column index in topic_catalog.csv>`. Never-asked picks land after history-known ones, ordered by catalog position.
+3. Sort the confirmed picks ascending by position and write them in that order.
+
+The candidate's input order does NOT determine row order — the file always reflects history-column order so it lines up with `interview_history.csv` for easy side-by-side reading.
+
 - Quote any field containing commas or double quotes (RFC 4180).
-- No priority column — file order is the order `/ios-interview` will ask.
+- No `notes` column. The flag warnings live only in the confirmation output (step 6), not in the file.
 
 ### 6. Confirmation
 
 Output ONLY this format:
 
 ```
-✓ current_topics.txt updated — N subtopics queued for next session (manual selection)
+✓ current_topics.csv updated — N subtopics queued for next session (manual selection)
 
 Picks (in order):
   1. <category> / <subtopic>
@@ -109,7 +118,7 @@ That's it. No analysis, no recommendations.
 - **Never block** a pick because of its flag — warn only.
 - **Never invent** a `(topic, subtopic)` pair not in the catalog. If a user request can't be matched even after fuzzy lookup, drop that entry and tell them.
 - **Never overwrite `topic_catalog.csv`** — the catalog is the source of truth, not editable by this skill.
-- **Never write more than 10 rows** to `current_topics.txt`.
-- **Never preserve** the old `current_topics.txt` content — replace it entirely.
+- **Never write more than 10 rows** to `current_topics.csv`.
+- **Never preserve** the old `current_topics.csv` content — replace it entirely.
 - **Never assign priorities** — there's no priority column. File order is the only ordering signal.
 - **Never deliver a verdict, recommendation, or progress analysis** — that's `/study-plan`'s job.

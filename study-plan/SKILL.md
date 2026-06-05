@@ -98,4 +98,4 @@ For next session topic prep, run /setup-session.
 - **Never deliver a verdict, recommendation, or study task list.** Trend feedback only.
 - **Never run** if `logs/interview_history.csv` is missing or empty (no data rows).
 - **Never invent improvements, regressions, or retention claims** that aren't backed by data in history.
-- **Never rewrite `current_topics.txt`** — that's `/setup-session`'s job.
+- **Never rewrite `current_topics.csv`** — that's `/setup-session`'s job.

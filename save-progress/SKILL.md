@@ -30,10 +30,10 @@ This skill reads **only two files**:
 - **`logs/interview_history.csv`** (if it exists) — to determine the next `session_id` and the existing column layout (subtopic columns to extend).
 
 This skill does **NOT** read:
-- `topic_catalog.csv` — the chain of trust handles catalog bounds: `/setup-session` produces a catalog-bounded `current_topics.txt`, `/ios-interview` uses those names verbatim in question headers, so by the time save-progress sees `current_interview.txt` the names are already catalog-aligned. No re-validation here.
+- `topic_catalog.csv` — the chain of trust handles catalog bounds: `/setup-session` produces a catalog-bounded `current_topics.csv`, `/ios-interview` uses those names verbatim in question headers, so by the time save-progress sees `current_interview.txt` the names are already catalog-aligned. No re-validation here.
 - `candidate-information/linkedIn.txt` (no personal information needed)
 - `candidate-information/candidate_stories.md`
-- `current_topics.txt`
+- `current_topics.csv`
 - Any other file
 
 ## Output file format — wide/pivoted CSV

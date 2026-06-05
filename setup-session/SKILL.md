@@ -3,7 +3,7 @@ name: setup-session
 description: >
   Selects exactly 10 subtopics for the next interview by combining the
   topic_catalog.csv (source of truth, with flags) and logs/interview_history.csv
-  (past sessions), then writes them to current_topics.txt as the ordered queue
+  (past sessions), then writes them to current_topics.csv as the ordered queue
   ios-interview will walk through. Pure file-write skill — no progress feedback,
   no analysis output, just a brief confirmation. For human-readable progress
   feedback, use /study-plan.
@@ -13,7 +13,7 @@ description: >
 
 # Setup Session
 
-You select **exactly 10 subtopics** for the next interview session and write them to `current_topics.txt`. `ios-interview` will then ask one question per row, in order, for exactly 10 questions. This skill is **file-write only** — no analysis, no progress feedback, no recommendations beyond a brief confirmation.
+You select **exactly 10 subtopics** for the next interview session and write them to `current_topics.csv`. `ios-interview` will then ask one question per row, in order, for exactly 10 questions. This skill is **file-write only** — no analysis, no progress feedback, no recommendations beyond a brief confirmation.
 
 For human-readable progress analysis (trends, regressions, retention), the candidate should use `/study-plan`.
 
@@ -24,7 +24,7 @@ This skill reads **two files**:
 - **`topic_catalog.csv`** (project root, tracked) — source of truth. Wide CSV with 3 rows: topics, subtopics, flag (`active|pending|ignore|deferred|mastered`). Every column is a valid `(topic, subtopic)` pair. Flags filter eligibility.
 - **`logs/interview_history.csv`** (optional) — Wide/pivoted CSV with two header rows (topics, then `session_date,session_id,...subtopics`) and one row per past session. Cells contain notes; empty cells mean the subtopic wasn't touched that session.
 
-This skill does **NOT** access any other file. No personal info, no existing `current_topics.txt` (it gets overwritten), no current session log.
+This skill does **NOT** access any other file. No personal info, no existing `current_topics.csv` (it gets overwritten), no current session log.
 
 **Cold-start behavior**: if `logs/interview_history.csv` is missing or empty (header only, no data rows), proceed using the catalog only — pick 10 subtopics from Pool C (see below). Do NOT refuse to run on empty history.
 
@@ -77,24 +77,35 @@ If fewer than 10 subtopics are picked (catalog too small or too restrictive), wr
 
 ## Output (silent file write)
 
-Replace `current_topics.txt` (project root) entirely. **Regenerate from scratch — no warning, no preservation of prior content.**
+Replace `current_topics.csv` (project root) entirely. **Regenerate from scratch — no warning, no preservation of prior content.**
 
 ### Schema
 
 ```csv
-category,subtopic,notes
+category,subtopic
 ```
 
 | Column | Description |
 |--------|-------------|
 | `category` | Topic from `topic_catalog.csv` row 1, matching the picked column. |
 | `subtopic` | Subtopic from `topic_catalog.csv` row 2, matching the picked column. |
-| `notes` | Short explanation: why this was picked. Example values: `"Persistent gap: weak in last 3 sessions"`, `"Regressed strong→weak last session"`, `"Never asked; role-critical (Security)"`, `"Retention check; mastered, not asked in 5 sessions"`. For `pending` catalog-flagged subtopics, append `" (catalog flag: pending review)"`. |
+
+No `notes` column. The pools / pick reasons are summarized in the user-facing confirmation only.
+
+### Row order — match `interview_history.csv` column order
+
+After selecting the 10 picks via Pools A → B → C → D, **reorder the rows** before writing so they appear in the same order as the corresponding columns in `logs/interview_history.csv`:
+
+1. For each pick, look up its `(topic, subtopic)` pair in `interview_history.csv`'s header rows.
+   - If found: the pick's position = its column index in history (left-to-right).
+   - If not found (never asked, no history column yet): the pick's position = `<max history column index> + <its column index in topic_catalog.csv>`. This places never-asked picks after history-known ones, in catalog order.
+2. Sort the 10 picks ascending by position. Write them in that order.
+
+This means file order = history-column order, **not** importance order. `/ios-interview` will walk this order top-to-bottom, asking older-introduced subtopics before never-seen ones.
 
 ### Write rules
 
-- **Exactly 10 rows**, in queue order: Pool A first, then B, C, D. File order IS the priority — there's no explicit priority column. `/ios-interview` walks the file top-to-bottom, so the most important subtopics get asked first while attention is freshest.
-- Within the same pool, keep the pool's internal sort order (most-recent-weak first for Pools A/B; role-critical-first then round-robin across categories for Pool C).
+- **Exactly 10 rows** (or fewer if Pools A/B/C/D don't yield 10).
 - **Quote any field** containing commas or double quotes (RFC 4180).
 - **Every row must exist as a column in `topic_catalog.csv`** — never invent.
 - **No duplicates** — each `(category, subtopic)` pair appears at most once.
@@ -105,7 +116,7 @@ category,subtopic,notes
 After writing the file, output ONLY this format:
 
 ```
-✓ current_topics.txt updated — 10 subtopics queued for next session
+✓ current_topics.csv updated — 10 subtopics queued for next session
 
   Persistent gaps:   N
   Recent weak:       M
@@ -119,7 +130,7 @@ Then run /ios-interview to start the session.
 If fewer than 10 were picked, replace the first line with:
 
 ```
-⚠ current_topics.txt updated — only J subtopics available (catalog too restrictive or fully covered)
+⚠ current_topics.csv updated — only J subtopics available (catalog too restrictive or fully covered)
 ```
 
 That's it. **No analysis, no regression details, no recommendations, no commentary.** If the candidate wants insights about their progress, they invoke `/study-plan`.
@@ -128,7 +139,7 @@ That's it. **No analysis, no regression details, no recommendations, no commenta
 
 - **Never read** any file other than `topic_catalog.csv` and `logs/interview_history.csv`.
 - **Never deliver progress feedback** — improvements, regressions, retention analysis. Those belong to `/study-plan`.
-- **Never preserve** the old `current_topics.txt` content — this skill owns that file. Replace, don't merge. Don't ask before overwriting.
+- **Never preserve** the old `current_topics.csv` content — this skill owns that file. Replace, don't merge. Don't ask before overwriting.
 - **Never include subtopics not in `topic_catalog.csv`** — the catalog is the bound.
 - **Never include subtopics flagged `ignore` or `deferred`** — they are off-limits.
 - **Never pick more than 1 from Pool D (retention)** in a single session.
