@@ -6,7 +6,7 @@ description: >
   and reads current_topics.txt (project root) for the curated pool of topics to draw from.
   Captures all Q&A in logs/current_interview.txt for later analysis.
   Simulation mode — no mid-interview hints, no feedback. Feedback is delivered by a separate skill.
-  Does NOT read interview_history.csv — this skill is stateless and doesn't track past sessions.
+  Does NOT read topic_catalog.csv or interview_history.csv — this skill is stateless and trusts current_topics.txt as its only queue.
   Use when user says "interview me", "ask me iOS questions", "practice iOS with me",
   "interview simulation", or invokes /ios-interview.
 ---
@@ -29,15 +29,16 @@ This is a **conceptual/verbal** interview. **Never** ask the candidate to write,
 
 **MANDATORY before the first question**:
 
+This skill reads **only two files**: `candidate-information/linkedIn.txt` and `current_topics.txt`. It does NOT read `topic_catalog.csv`, history, or anything else — `current_topics.txt` is already bounded by the catalog because `/setup-session` produced it.
+
 1. Read `candidate-information/linkedIn.txt` — candidate profile, stack, experience, target role.
 2. Read `current_topics.txt` (project root) — **the queue for this session**, written by `/setup-session`. Schema: `category,subtopic,priority,notes`. Each row is one subtopic; **you will ask exactly one question per row, in file order, for exactly 10 questions total**. Use the `notes` column to sharpen the question (it captures *why* this subtopic was picked: persistent gap, recent regression, never asked, retention refresh).
-3. Verify each `(category, subtopic)` row in `current_topics.txt` exists as a column in `topic_catalog.csv`. If a row is missing from the catalog, surface the error and stop — the catalog is the bound; expand it manually if needed.
 
 If `current_topics.txt` doesn't exist or has fewer than 10 rows: tell the candidate to run `/setup-session` first. Do NOT pick topics yourself; selection is `/setup-session`'s job. (Cold-start picks happen in `/setup-session` when history is empty.)
 
-4. Announce in 1–2 lines: target role (from `linkedIn.txt`) and the 10 topics for today.
-5. Create `logs/current_interview.txt` with: date, role, level, topics to cover. **Use the catalog's exact topic and subtopic names** in question headers (e.g., `### Q1 — Architecture / Repository Pattern`) — `save-progress` will reject the session if names don't match the catalog.
-6. Start with the first question. Don't wait for confirmation.
+3. Announce in 1–2 lines: target role (from `linkedIn.txt`) and the 10 topics for today.
+4. Create `logs/current_interview.txt` with: date, role, level, topics to cover. **Use the exact `category` and `subtopic` strings from `current_topics.txt`** in question headers (e.g., `### Q1 — Architecture / Repository Pattern`) — `save-progress` will validate against the catalog and reject the session if names don't match.
+5. Start with the first question. Don't wait for confirmation.
 
 ### 2. Question flow
 

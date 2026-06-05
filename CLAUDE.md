@@ -16,7 +16,7 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 - **`ios-interview/SKILL.md`** — Conducts realistic iOS technical interview simulations. Walks `current_topics.txt` row by row, asking exactly one question per subtopic (10 rows = 10 questions, strict 1:1, no follow-ups). The candidate is the interviewee, Claude asks questions with no mid-interview feedback.
   - Invoked via `/ios-interview` or "interview me"
 
-- **`save-progress/SKILL.md`** — Persists the most recent interview session into `logs/interview_history.csv`, then deletes `logs/current_interview.txt`. Validates every `(topic, subtopic)` against `topic_catalog.csv` and rejects sessions with unknown pairs.
+- **`save-progress/SKILL.md`** — Persists the most recent interview session into `logs/interview_history.csv`, then deletes `logs/current_interview.txt`. Read-and-transcribe only: reads `current_interview.txt` and `interview_history.csv` (for column reconciliation) and writes the new session row. Does not read the catalog — trust comes from the upstream chain (`/setup-session` enforces catalog bounds).
   - Invoked via `/save-progress` or "save the session"
 
 - **`setup-session/SKILL.md`** — Selects exactly 10 subtopics for the next interview by combining `topic_catalog.csv` (catalog + flags) and `logs/interview_history.csv` (past sessions). Writes the queue to `current_topics.txt` in priority order. Algorithm: gap-first (persistent weaknesses), then recent weak/regressions, then never-asked breadth, then at most 1 retention refresh.
@@ -28,7 +28,7 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 ## Project Structure
 
 ```
-topic_catalog.csv             — source of truth for what CAN be asked. Wide CSV: row 1 = topics, row 2 = subtopics, row 3 = flag (active|pending|ignore|deferred|mastered). Tracked. ios-interview must pick from this; save-progress rejects sessions referencing subtopics not in this catalog. Flag semantics: active=in scope, pending=in scope but flagged for review, ignore=permanently off, deferred=temporarily off, mastered=retention-refresh only.
+topic_catalog.csv             — source of truth for what CAN be asked. Wide CSV: row 1 = topics, row 2 = subtopics, row 3 = flag (active|pending|ignore|deferred|mastered). Tracked. Read ONLY by /setup-session; downstream skills trust the chain. Flag semantics: active=in scope, pending=in scope but flagged for review, ignore=permanently off, deferred=temporarily off, mastered=retention-refresh only.
 
 current_topics.txt            — next session's queue: exactly 10 subtopics (or fewer if catalog is too small) that ios-interview will ask one question each. Schema: category,subtopic,priority,notes. Owned entirely by /setup-session — overwritten each run. MUST be a subset of topic_catalog.csv. (gitignored — local-only)
 

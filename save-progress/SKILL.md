@@ -18,23 +18,22 @@ You persist the most recent interview session's data into the cumulative history
 
 ## When this skill runs
 
-- After an `ios-interview` session has ended.
 - Standalone invocation — not chained automatically.
 - Output is a confirmation, not coaching or recommendations.
 
 ## Mandatory inputs (only these)
 
-This skill reads:
+This skill reads **only two files**:
 
 - **`logs/current_interview.txt`** — The session to persist. Contains Q&A pairs with per-question categories (On Point / Could Be Better / Vague / Improvised / Don't Know) and notes per question.
 - **`logs/interview_history.csv`** (if it exists) — to determine the next `session_id` and the existing column layout (subtopic columns to extend).
-- **`topic_catalog.csv`** — source of truth for valid `(topic, subtopic)` pairs. Every subtopic referenced in the session being saved must exist as a column in this catalog. See Validation step below.
 
 This skill does **NOT** read:
+- `topic_catalog.csv` — the chain of trust handles catalog bounds: `/setup-session` produces a catalog-bounded `current_topics.txt`, `/ios-interview` uses those names verbatim in question headers, so by the time save-progress sees `current_interview.txt` the names are already catalog-aligned. No re-validation here.
 - `candidate-information/linkedIn.txt` (no personal information needed)
 - `candidate-information/candidate_stories.md`
 - `current_topics.txt`
-- Any other personal data
+- Any other file
 
 ## Output file format — wide/pivoted CSV
 
@@ -67,21 +66,16 @@ session_date,session_id,Repo vs Service vs UseCase,SwiftUI Navigation,Strategy,s
 2. **Determine `session_date`**: extract from the session header (e.g., `# Interview — 2026-06-04`). If missing, use today's date.
 3. **Determine `session_id`**: count existing data rows in `logs/interview_history.csv` and add 1. If the file doesn't exist, `session_id = 1`.
 4. **Group questions by (topic, subtopic)**: each Q&A pair has a topic and subtopic in its header (e.g., `### Q1 — Architecture / Repository Pattern`). Group across both main and experience Q&A sections.
-5. **Validate against `topic_catalog.csv` — REJECT if unknown subtopics present**:
-   - Read `topic_catalog.csv` (rows 1, 2, 3 = topics, subtopics, flags). The set of valid pairs = `{(row1[i], row2[i]) for each column i}` — flags do NOT affect validation (a previously-asked subtopic stays valid even if the user later flags it `ignore`).
-   - For every `(topic, subtopic)` pair extracted from the session, check it exists in that set.
-   - **If any unknown pair is found**: STOP. Do not write to history. Do not delete `current_interview.txt`. Output a message listing each unknown pair and ask the user to either (a) edit the session log to use catalog names, or (b) add the pair to `topic_catalog.csv` and re-run. Exit.
-   - **If all pairs match**: continue to step 6. (If any matched column is flagged `ignore` or `deferred`, surface a one-line warning in the final confirmation — it means `ios-interview` asked something the user intended to skip.)
-6. **Compose a notes string per (topic, subtopic)**: combine the question(s) for that subtopic into one short summary (1–2 sentences). Include the answer-category words ("On Point", "Vague", "Don't Know", etc.) so confidence can be inferred from the text.
-7. **Reconcile columns with existing file**:
+5. **Compose a notes string per (topic, subtopic)**: combine the question(s) for that subtopic into one short summary (1–2 sentences). Include the answer-category words ("On Point", "Vague", "Don't Know", etc.) so confidence can be inferred from the text.
+6. **Reconcile columns with existing file**:
    - If `logs/interview_history.csv` does NOT exist: write topic header row, subtopic header row, and the new session data row.
-   - If file exists: read the existing topic + subtopic header rows. Identify which (topic, subtopic) pairs from this session are new (still bounded by the catalog — step 5 already validated). Append new columns to BOTH header rows AND to every existing data row (with empty cells). Then append the new session data row.
-8. **Write the new session data row**: first cell = session_date, second cell = session_id, remaining cells = notes for subtopics covered this session, empty for everything else.
-9. **Verify the append succeeded**: confirm the new row is present in `logs/interview_history.csv` before proceeding.
-10. **Delete `logs/current_interview.txt`**: only after step 9 confirms the data is safely in history. This clears the working session log to make room for the next interview.
-11. **Output confirmation** to the user (see below).
+   - If file exists: read the existing topic + subtopic header rows. Identify which (topic, subtopic) pairs from this session are new. Append new columns to BOTH header rows AND to every existing data row (with empty cells). Then append the new session data row.
+7. **Write the new session data row**: first cell = session_date, second cell = session_id, remaining cells = notes for subtopics covered this session, empty for everything else.
+8. **Verify the append succeeded**: confirm the new row is present in `logs/interview_history.csv` before proceeding.
+9. **Delete `logs/current_interview.txt`**: only after step 8 confirms the data is safely in history. This clears the working session log to make room for the next interview.
+10. **Output confirmation** to the user (see below).
 
-**Critical ordering rule**: NEVER delete `logs/current_interview.txt` before verifying the data was appended successfully. If validation (step 5) or the write fails, leave `current_interview.txt` intact so the data isn't lost.
+**Critical ordering rule**: NEVER delete `logs/current_interview.txt` before verifying the data was appended successfully. If the write fails, leave `current_interview.txt` intact so the data isn't lost.
 
 ## CSV escaping
 
