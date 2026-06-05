@@ -58,14 +58,18 @@ When the candidate re-invokes the helper and both files are present, Branch 1 is
 
 If `current_topics.txt` does not exist or is empty (regardless of profile state):
 
-The helper does NOT write `current_topics.txt` itself. `/setup-session` owns that file and knows how to pick the 10 subtopics for the next session — including the cold-start case where there's no history yet (Pool C of `topic_catalog.csv`).
+The helper does NOT write `current_topics.txt` itself. Two skills own that file:
+- `/setup-session` — algorithmic pick from `topic_catalog.csv` + history. Handles cold-start (Pool C only).
+- `/custom-session` — manual pick where the candidate chooses subtopics by name.
 
 Tell the candidate:
 > "Profile files are in place. You don't have a topic queue yet for the next session.
 >
-> Suggested next: run `/setup-session` to pick the 10 subtopics for your first interview. It will draw from `topic_catalog.csv` since there's no history to weight against."
+> Suggested next:
+> - `/setup-session` — let the algorithm pick 10 subtopics from the catalog. Good default for the first session.
+> - `/custom-session` — if you want to hand-pick the subtopics yourself."
 
-Stop here and wait. Do not move to Branch 3 — `/setup-session` is the next step.
+Stop here and wait. Do not move to Branch 3 — the candidate needs to populate `current_topics.txt` first.
 
 ## Branch 3: Everything set up, no history yet
 
@@ -75,7 +79,7 @@ Tell the candidate:
 > "✓ Setup complete. You're ready for your first interview.
 >
 > Workflow loop:
-> 1. `/setup-session` — pick the 10 subtopics for the next interview (re-run any time before `/ios-interview`)
+> 1. `/setup-session` (algorithmic pick) OR `/custom-session` (manual pick) — populate `current_topics.txt` for the next interview. Re-run any time before `/ios-interview`.
 > 2. `/ios-interview` — start the mock interview session (asks one question per subtopic, 10 total)
 > 3. `/save-progress` — save the session when it ends
 > 4. `/study-plan` — see progress feedback (improvements, gaps, regressions)
@@ -100,14 +104,15 @@ Read the history briefly to count sessions, then tell the candidate:
 >
 > Pick what's next:
 > - `/ios-interview` — start a new mock interview
-> - `/setup-session` — refresh topic priorities based on your history (recommended after recent saves)
+> - `/setup-session` — algorithmically refresh topics based on your history (recommended after recent saves)
+> - `/custom-session` — hand-pick the subtopics yourself (good when you want to drill specific areas)
 > - `/study-plan` — see progress feedback (trends, gaps, retention)
 >
 > Natural flow after a `/save-progress`: `/setup-session` → `/study-plan` → `/ios-interview`."
 
 ## File-creation rules
 
-The helper **does not write any files**. It detects state and suggests commands. `current_topics.txt` is owned by `/setup-session`; profile files are written by the candidate.
+The helper **does not write any files**. It detects state and suggests commands. `current_topics.txt` is owned by `/setup-session` and `/custom-session`; profile files are written by the candidate.
 
 - **Never silently modify files** the candidate didn't ask you to touch.
 

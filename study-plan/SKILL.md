@@ -25,18 +25,20 @@ This skill does **not** access any other file. No personal info, no topic list, 
 
 **If `logs/interview_history.csv` is missing or empty** (header only, no data rows): tell the candidate there's no history to analyze — they should run `/ios-interview` and `/save-progress` first. Then exit.
 
-## Inferring confidence from notes (read-time)
+## Reading confidence from cells
 
-Confidence is **NOT stored** in the history file. You must infer it from the notes text in each cell by scanning for answer-category keywords:
+Each non-empty cell in `interview_history.csv` is one of exactly five labels (written by `/save-progress`):
 
-| Keywords in cell | Inferred confidence |
+| Cell value | Confidence bucket (internal) |
 |---|---|
-| Only "On Point" mentioned, no negative keywords | `strong` |
-| Mix of "On Point" and "Could Be Better", no Vague/Improvised/Don't Know | `ok` |
-| Any "Vague", "Improvised", "Don't Know" | `weak` |
-| Cell empty | not asked this session — skip when computing trend |
+| `On Point` | strong |
+| `Could Be Better` | ok |
+| `Vague` | weak |
+| `Improvised` | weak |
+| `Don't Know` | weak |
+| (empty cell) | skip when computing trend |
 
-If a cell is ambiguous (no answer-category keywords), default to `ok` and continue.
+The bucket drives trend categorization below. The report itself can reference the literal label when useful (e.g., "Property Wrappers: Don't Know → Could Be Better").
 
 ## Analysis logic
 
@@ -62,7 +64,7 @@ Deliver a structured report. Use this exact format:
 (omit section if no improvements)
 
 ⚠️ Persistent gaps (3+ sessions weak)
-- [subtopic]: [brief description from the most recent notes cell]
+- [subtopic]: weak in N consecutive sessions (most recent label: [label])
 - ...
 (omit section if no persistent gaps)
 
@@ -83,7 +85,7 @@ For next session topic prep, run /setup-session.
 ## Content rules
 
 - **Concrete, not generic.** Use actual subtopic names from history, not categories.
-- **Quote notes from cells** when describing gaps — anchor in real data, don't invent.
+- **Reference cell labels directly** when describing gaps (e.g., "Property Wrappers: Don't Know in S1 → Could Be Better in S3"). Notes are no longer stored; the label is the data.
 - **Keep each bullet to one line.** No multi-line analysis per bullet.
 - **Omit empty sections.** If there are no regressions, don't include the heading.
 - **No recommendations or study tasks.** This skill is feedback only.

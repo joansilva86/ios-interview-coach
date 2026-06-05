@@ -19,8 +19,11 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 - **`save-progress/SKILL.md`** — Persists the most recent interview session into `logs/interview_history.csv`, then deletes `logs/current_interview.txt`. Read-and-transcribe only: reads `current_interview.txt` and `interview_history.csv` (for column reconciliation) and writes the new session row. Does not read the catalog — trust comes from the upstream chain (`/setup-session` enforces catalog bounds).
   - Invoked via `/save-progress` or "save the session"
 
-- **`setup-session/SKILL.md`** — Selects exactly 10 subtopics for the next interview by combining `topic_catalog.csv` (catalog + flags) and `logs/interview_history.csv` (past sessions). Writes the queue to `current_topics.txt` in priority order. Algorithm: gap-first (persistent weaknesses), then recent weak/regressions, then never-asked breadth, then at most 1 retention refresh.
+- **`setup-session/SKILL.md`** — Selects exactly 10 subtopics for the next interview by combining `topic_catalog.csv` (catalog + flags) and `logs/interview_history.csv` (past sessions). Writes the queue to `current_topics.txt` ordered by importance (file order = priority). Algorithm: gap-first (persistent weaknesses), then recent weak/regressions, then never-asked breadth, then at most 1 retention refresh.
   - Invoked via `/setup-session` or "pick what to ask next"
+
+- **`custom-session/SKILL.md`** — Manual alternative to `/setup-session`. Asks the candidate which subtopics they want to practice (up to 10), matches them against `topic_catalog.csv` (with fuzzy matching if names are approximate), warns on `ignore`/`deferred`/`pending` flags, and writes `current_topics.txt`.
+  - Invoked via `/custom-session` or "I want to choose the topics"
 
 - **`study-plan/SKILL.md`** — Reads `logs/interview_history.csv` and delivers progress feedback (improvements, persistent gaps, regressions, solid retention). Read-only — no file writes.
   - Invoked via `/study-plan` or "how am I doing?"
@@ -30,7 +33,7 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 ```
 topic_catalog.csv             — source of truth for what CAN be asked. Wide CSV: row 1 = topics, row 2 = subtopics, row 3 = flag (active|pending|ignore|deferred|mastered). Tracked. Read ONLY by /setup-session; downstream skills trust the chain. Flag semantics: active=in scope, pending=in scope but flagged for review, ignore=permanently off, deferred=temporarily off, mastered=retention-refresh only.
 
-current_topics.txt            — next session's queue: exactly 10 subtopics (or fewer if catalog is too small) that ios-interview will ask one question each. Schema: category,subtopic,priority,notes. Owned entirely by /setup-session — overwritten each run. MUST be a subset of topic_catalog.csv. (gitignored — local-only)
+current_topics.txt            — next session's queue: up to 10 subtopics that ios-interview will ask one question each. Schema: category,subtopic,notes. File order = importance (no explicit priority column). Owned by /setup-session and /custom-session — overwritten each run. MUST be a subset of topic_catalog.csv. (gitignored — local-only)
 
 candidate-information/        — candidate profile data (tracked; provided by the candidate, not generated)
   ├── linkedIn.txt            — LinkedIn profile content (the candidate places this file themselves)
@@ -39,7 +42,7 @@ candidate-information/        — candidate profile data (tracked; provided by t
 
 logs/                         — personal session logs (gitignored)
   ├── current_interview.txt   — current/most recent session Q&A
-  └── interview_history.csv   — wide CSV: 2 header rows (topic, subtopic) + one row per session; cells contain notes
+  └── interview_history.csv   — wide CSV: 2 header rows (topic, subtopic) + one row per session; each cell holds an answer-category label (On Point | Could Be Better | Vague | Improvised | Don't Know) or is empty
 
 helper/                       — onboarding + workflow navigation
   └── SKILL.md
@@ -50,7 +53,10 @@ ios-interview/                — interview simulation skill
 save-progress/                — saves session data to interview_history.csv
   └── SKILL.md
 
-setup-session/                — rewrites current_topics.txt from history
+setup-session/                — rewrites current_topics.txt from history (algorithmic)
+  └── SKILL.md
+
+custom-session/               — rewrites current_topics.txt from user-picked subtopics (manual)
   └── SKILL.md
 
 study-plan/                   — delivers progress feedback (read-only)

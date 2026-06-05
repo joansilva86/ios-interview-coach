@@ -28,18 +28,20 @@ This skill does **NOT** access any other file. No personal info, no existing `cu
 
 **Cold-start behavior**: if `logs/interview_history.csv` is missing or empty (header only, no data rows), proceed using the catalog only — pick 10 subtopics from Pool C (see below). Do NOT refuse to run on empty history.
 
-## Inferring confidence from notes (read-time)
+## Reading confidence from cells
 
-Confidence is **NOT stored** in the history file. Infer it from the notes text in each cell by scanning for answer-category keywords:
+Each non-empty cell in `interview_history.csv` is one of exactly five labels (written verbatim by `/save-progress`):
 
-| Keywords in cell | Inferred confidence |
+| Cell value | Confidence bucket (internal) |
 |---|---|
-| Only "On Point" mentioned, no negative keywords | `strong` |
-| Mix of "On Point" and "Could Be Better", no Vague/Improvised/Don't Know | `ok` |
-| Any "Vague", "Improvised", "Don't Know" | `weak` |
-| Cell empty | not asked this session — no signal |
+| `On Point` | strong |
+| `Could Be Better` | ok |
+| `Vague` | weak |
+| `Improvised` | weak |
+| `Don't Know` | weak |
+| (empty cell) | no signal — subtopic not asked this session |
 
-If a cell is ambiguous (no answer-category keywords), default to `ok`.
+The bucket is internal classification used only to drive the selection algorithm below. The CSV stores the literal label — never collapse 5 → 3 when writing back.
 
 ## Selection algorithm — gap-first, then variety
 
@@ -47,17 +49,17 @@ Pick exactly 10 subtopics by walking these pools in order. Each subtopic enters 
 
 **Exclude up front**: any catalog column flagged `ignore` or `deferred`. They are not eligible for any pool.
 
-### Pool A — Persistent gaps (priority P0)
+### Pool A — Persistent gaps
 Subtopics with history where the most recent 3+ non-empty cells are all `weak`. Sort by most-recent-weak first. Cap at 10. Drop later pools if Pool A fills all 10.
 
-### Pool B — Recent weak / regressions (priority P1)
+### Pool B — Recent weak / regressions
 Subtopics where one of these is true:
 - Most recent non-empty cell is `weak` (single occurrence).
 - Confidence regressed across sessions: `strong → ok`, `strong → weak`, or `ok → weak`.
 
 Sort by most-recent-weak first. Take up to (10 − count so far).
 
-### Pool C — Never-asked catalog subtopics (priority P2)
+### Pool C — Never-asked catalog subtopics
 Catalog columns with flag in `{active, pending}` AND no non-empty cells in history.
 
 Sort by:
@@ -67,7 +69,7 @@ Sort by:
 
 Take up to (10 − count so far).
 
-### Pool D — Retention refresh (priority P3)
+### Pool D — Retention refresh
 Catalog columns flagged `mastered` that haven't been asked in 3+ sessions (or never asked). Take **at most 1** from this pool, only if there's room and only as the final slot.
 
 ### After all pools
@@ -77,23 +79,22 @@ If fewer than 10 subtopics are picked (catalog too small or too restrictive), wr
 
 Replace `current_topics.txt` (project root) entirely. **Regenerate from scratch — no warning, no preservation of prior content.**
 
-### Schema (unchanged)
+### Schema
 
 ```csv
-category,subtopic,priority,notes
+category,subtopic,notes
 ```
 
 | Column | Description |
 |--------|-------------|
 | `category` | Topic from `topic_catalog.csv` row 1, matching the picked column. |
 | `subtopic` | Subtopic from `topic_catalog.csv` row 2, matching the picked column. |
-| `priority` | `P0` \| `P1` \| `P2` \| `P3` — derived from which pool placed the subtopic. |
 | `notes` | Short explanation: why this was picked. Example values: `"Persistent gap: weak in last 3 sessions"`, `"Regressed strong→weak last session"`, `"Never asked; role-critical (Security)"`, `"Retention check; mastered, not asked in 5 sessions"`. For `pending` catalog-flagged subtopics, append `" (catalog flag: pending review)"`. |
 
 ### Write rules
 
-- **Exactly 10 rows**, in queue order (P0 first, then P1, P2, P3 — same order ios-interview will ask them).
-- Within the same priority tier, keep the pool's internal sort order (most-recent-weak first for Pools A/B; role-critical-first then round-robin for Pool C).
+- **Exactly 10 rows**, in queue order: Pool A first, then B, C, D. File order IS the priority — there's no explicit priority column. `/ios-interview` walks the file top-to-bottom, so the most important subtopics get asked first while attention is freshest.
+- Within the same pool, keep the pool's internal sort order (most-recent-weak first for Pools A/B; role-critical-first then round-robin across categories for Pool C).
 - **Quote any field** containing commas or double quotes (RFC 4180).
 - **Every row must exist as a column in `topic_catalog.csv`** — never invent.
 - **No duplicates** — each `(category, subtopic)` pair appears at most once.
@@ -106,10 +107,10 @@ After writing the file, output ONLY this format:
 ```
 ✓ current_topics.txt updated — 10 subtopics queued for next session
 
-  P0 (persistent gaps):  N
-  P1 (recent weak):      M
-  P2 (new / breadth):    K
-  P3 (retention check):  W
+  Persistent gaps:   N
+  Recent weak:       M
+  New / breadth:     K
+  Retention check:   W
 
 For progress feedback, run /study-plan.
 Then run /ios-interview to start the session.

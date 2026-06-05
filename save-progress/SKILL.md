@@ -2,11 +2,12 @@
 name: save-progress
 description: >
   Persists the most recent interview session's data into the interview history CSV,
-  then clears the working session log. Reads ONLY logs/current_interview.txt (does NOT
-  access any candidate personal information). Appends ONE row per session to
-  logs/interview_history.csv in WIDE/PIVOTED format — one column per (topic, subtopic),
-  with notes only in the cells. Confidence and counts are NOT stored — they are inferred
-  at read-time by /setup-session and /study-plan from the notes text. Save-only — no
+  then clears the working session log. Reads logs/current_interview.txt and
+  logs/interview_history.csv (does NOT access the catalog or any personal information).
+  Appends ONE row per session to logs/interview_history.csv in WIDE/PIVOTED format —
+  one column per (topic, subtopic). Cell content = the answer-category label only
+  (On Point | Could Be Better | Vague | Improvised | Don't Know). No notes, no rollup,
+  no confidence inference downstream — labels are read directly. Save-only — no
   feedback, no verdict, no recommendations.
   Use when the candidate says "save the progress", "save the session",
   "save my interview", "log the session", or invokes /save-progress.
@@ -49,16 +50,17 @@ This skill does **NOT** read:
 
 ```csv
 ,,Architecture,Architecture,Design Patterns,Swift Language
-session_date,session_id,Repo vs Service vs UseCase,SwiftUI Navigation,Strategy,some vs any
-2026-06-03,1,"Inverted definitions: Repo hits server (Service responsibility)","Chose Router without canonical pattern","Q2 On Point, Q6 same example, Q6b Don't Know","Correct intuition but missing mechanism"
-2026-06-10,2,,"VM exposes @Published route, View observes — correct","","Now distinguishes opaque vs existential clearly"
+session_date,session_id,Repository Pattern,SwiftUI Navigation,Strategy,some vs any
+2026-06-03,1,Improvised,Could Be Better,On Point,Don't Know
+2026-06-10,2,On Point,Could Be Better,,On Point
 ```
 
 ### What goes in each cell
 
-- **Cell content = the notes text only.** Encode confidence inside the notes by including the answer category words ("On Point", "Could Be Better", "Vague", "Improvised", "Don't Know") so downstream skills can infer confidence by reading the text.
+- **Cell content = the answer-category label, nothing else.** One of exactly five values: `On Point`, `Could Be Better`, `Vague`, `Improvised`, `Don't Know`. No notes, no explanations, no quoted text. Downstream skills read the label directly — no inference needed.
 - **Empty cell** = subtopic not touched in that session.
 - **One column per (topic, subtopic) pair.** Subtopics with the same name under different topics are different columns.
+- **Since `/ios-interview` is strict 1:1** (one question per subtopic, no follow-ups), each cell maps to exactly one classification. No rollup, no "mixed" cells.
 
 ## Workflow
 
@@ -66,7 +68,7 @@ session_date,session_id,Repo vs Service vs UseCase,SwiftUI Navigation,Strategy,s
 2. **Determine `session_date`**: extract from the session header (e.g., `# Interview — 2026-06-04`). If missing, use today's date.
 3. **Determine `session_id`**: count existing data rows in `logs/interview_history.csv` and add 1. If the file doesn't exist, `session_id = 1`.
 4. **Group questions by (topic, subtopic)**: each Q&A pair has a topic and subtopic in its header (e.g., `### Q1 — Architecture / Repository Pattern`). Group across both main and experience Q&A sections.
-5. **Compose a notes string per (topic, subtopic)**: combine the question(s) for that subtopic into one short summary (1–2 sentences). Include the answer-category words ("On Point", "Vague", "Don't Know", etc.) so confidence can be inferred from the text.
+5. **Extract the answer-category label per (topic, subtopic)**: each Q&A in `current_interview.txt` already has an `Answer category` field with one of the five values. Take that label verbatim — no summarizing, no adding context. With strict 1:1 (one question per subtopic), each subtopic has exactly one label.
 6. **Reconcile columns with existing file**:
    - If `logs/interview_history.csv` does NOT exist: write topic header row, subtopic header row, and the new session data row.
    - If file exists: read the existing topic + subtopic header rows. Identify which (topic, subtopic) pairs from this session are new. Append new columns to BOTH header rows AND to every existing data row (with empty cells). Then append the new session data row.

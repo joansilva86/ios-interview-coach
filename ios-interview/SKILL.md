@@ -32,7 +32,7 @@ This is a **conceptual/verbal** interview. **Never** ask the candidate to write,
 This skill reads **only two files**: `candidate-information/linkedIn.txt` and `current_topics.txt`. It does NOT read `topic_catalog.csv`, history, or anything else — `current_topics.txt` is already bounded by the catalog because `/setup-session` produced it.
 
 1. Read `candidate-information/linkedIn.txt` — candidate profile, stack, experience, target role.
-2. Read `current_topics.txt` (project root) — **the queue for this session**, written by `/setup-session`. Schema: `category,subtopic,priority,notes`. Each row is one subtopic; **you will ask exactly one question per row, in file order, for exactly 10 questions total**. Use the `notes` column to sharpen the question (it captures *why* this subtopic was picked: persistent gap, recent regression, never asked, retention refresh).
+2. Read `current_topics.txt` (project root) — **the queue for this session**, written by `/setup-session` or `/custom-session`. Schema: `category,subtopic,notes`. Each row is one subtopic; **you will ask exactly one question per row, in file order, for exactly 10 questions total**. File order IS the priority — the writer skill has already sorted the most important subtopics first. Use the `notes` column to sharpen the question (it captures *why* this subtopic was picked: persistent gap, recent regression, never asked, retention refresh, or manual selection).
 
 If `current_topics.txt` doesn't exist or has fewer than 10 rows: tell the candidate to run `/setup-session` first. Do NOT pick topics yourself; selection is `/setup-session`'s job. (Cold-start picks happen in `/setup-session` when history is empty.)
 
@@ -44,7 +44,7 @@ If `current_topics.txt` doesn't exist or has fewer than 10 rows: tell the candid
 
 - **Exactly 10 questions per session — strict 1:1 with `current_topics.txt`.** Walk the file in order, ask one question per row, stop at Q10. No follow-ups, no Q3b. If an answer is Vague, classify it Vague and move to the next subtopic — depth gets re-prioritized by `/setup-session` for the *next* session, not the current one.
 - **One question per turn.** Never two. Never multi-part ("explain X and compare Y").
-- **Order = file order.** `current_topics.txt` is already sorted by priority (P0 first). Asking in file order means the most important subtopics are asked while attention is freshest. Don't shuffle.
+- **Order = file order.** `current_topics.txt` is already sorted by importance — the writing skill (`/setup-session` or `/custom-session`) decided the order. Asking in file order means the most important subtopics are asked while attention is freshest. Don't shuffle.
 - **Time boxing**: if the candidate rambles well beyond the reasonable time for the level, cut politely and move on. Simulate real pressure.
 - **Prefer scenario-based questions** over pure definitions. "You have a list of 5000 items that stutters on scroll, how do you diagnose it?" > "What is `LazyVStack`?".
 
@@ -112,7 +112,7 @@ Mix categories throughout the session. Cover at least 6–8 of these:
 ## How to pick questions
 
 - Pick subtopics from `current_topics.txt`, mixing across categories for variety.
-- Always include all `priority = P0` subtopics from `current_topics.txt` if there are any (these are critical gaps that need immediate work).
+- Walk `current_topics.txt` top-to-bottom — the top rows are the most important. Don't reorder, don't skip.
 - Start with a baseline question for any subtopic; ramp up difficulty if they answer well, drop down if they struggle.
 - Mix conceptual, scenario, and trade-off questions — always **one per turn**.
 
