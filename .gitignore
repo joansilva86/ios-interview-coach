@@ -1,5 +1,6 @@
 # macOS
 .DS_Store
+* copy*
 
 # Claude Code local settings (machine-specific paths)
 .claude/
@@ -9,3 +10,6 @@ logs/
 
 # Per-candidate topic list (created by /helper on cold start, owned by /setup-session)
 current_topics.csv
+
+# Personal candidate information (local-only; not shared via git)
+candidate-information/

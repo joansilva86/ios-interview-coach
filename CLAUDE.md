@@ -35,7 +35,7 @@ topic_catalog.csv             — source of truth for what CAN be asked. Wide CS
 
 current_topics.csv            — next session's queue: up to 10 subtopics that ios-interview will ask one question each. Schema: category,subtopic. Row order matches interview_history.csv column order (subtopics with history first in their original column order, then never-asked ones in catalog order). Owned by /setup-session and /custom-session — overwritten each run. MUST be a subset of topic_catalog.csv. (gitignored — local-only)
 
-candidate-information/        — candidate profile data (tracked; provided by the candidate, not generated)
+candidate-information/        — candidate profile data (gitignored — local-only; provided by the candidate, not generated)
   ├── linkedIn.txt            — LinkedIn profile content (the candidate places this file themselves)
   ├── cv.txt                  — CV / résumé content (the candidate places this file themselves)
   └── candidate_stories.md    — canonical STAR stories for experience questions
