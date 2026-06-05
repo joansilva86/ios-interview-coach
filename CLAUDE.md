@@ -10,18 +10,17 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 
 ## Skills (Entry Points)
 
-- **`helper/SKILL.md`** — Orchestrates onboarding and workflow navigation. On cold start, asks the candidate to add their `linkedIn.txt` and `cv.txt` files (the helper does NOT write those — the candidate provides them). Once the profile files are in place, creates the initial `current_topics.txt`. Otherwise, suggests the next command based on project state. Suggests skill invocations — never calls them directly.
+- **`helper/SKILL.md`** — Orchestrates onboarding and workflow navigation. On cold start, asks the candidate to add their `linkedIn.txt` and `cv.txt` files, then points them at `/setup-session` for the first topic pick. The helper writes NO files. Suggests skill invocations — never calls them directly.
   - Invoked via `/helper` or "where do I start?", "what's next?", "I'm new"
 
-- **`ios-interview/SKILL.md`** — Conducts realistic iOS technical interview simulations. The candidate is the interviewee, Claude asks questions with no mid-interview feedback.
+- **`ios-interview/SKILL.md`** — Conducts realistic iOS technical interview simulations. Walks `current_topics.txt` row by row, asking exactly one question per subtopic (10 rows = 10 questions, strict 1:1, no follow-ups). The candidate is the interviewee, Claude asks questions with no mid-interview feedback.
   - Invoked via `/ios-interview` or "interview me"
-  - See `ios-interview/SKILL.md` for the full workflow, question categories, calibration rules, and closing format.
 
-- **`save-progress/SKILL.md`** — Persists the most recent interview session into `logs/interview_history.csv`, then deletes `logs/current_interview.txt`. Save-only — no feedback, verdict, or analysis delivered to the user.
+- **`save-progress/SKILL.md`** — Persists the most recent interview session into `logs/interview_history.csv`, then deletes `logs/current_interview.txt`. Validates every `(topic, subtopic)` against `topic_catalog.csv` and rejects sessions with unknown pairs.
   - Invoked via `/save-progress` or "save the session"
 
-- **`setup-session/SKILL.md`** — Reads `logs/interview_history.csv` and rewrites `current_topics.txt` with prioritized topics for the next interview. File-write only — no analysis, no feedback.
-  - Invoked via `/setup-session` or "prepare topics for next session"
+- **`setup-session/SKILL.md`** — Selects exactly 10 subtopics for the next interview by combining `topic_catalog.csv` (catalog + flags) and `logs/interview_history.csv` (past sessions). Writes the queue to `current_topics.txt` in priority order. Algorithm: gap-first (persistent weaknesses), then recent weak/regressions, then never-asked breadth, then at most 1 retention refresh.
+  - Invoked via `/setup-session` or "pick what to ask next"
 
 - **`study-plan/SKILL.md`** — Reads `logs/interview_history.csv` and delivers progress feedback (improvements, persistent gaps, regressions, solid retention). Read-only — no file writes.
   - Invoked via `/study-plan` or "how am I doing?"
@@ -31,7 +30,7 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 ```
 topic_catalog.csv             — source of truth for what CAN be asked. Wide CSV: row 1 = topics, row 2 = subtopics, row 3 = flag (active|pending|ignore|deferred|mastered). Tracked. ios-interview must pick from this; save-progress rejects sessions referencing subtopics not in this catalog. Flag semantics: active=in scope, pending=in scope but flagged for review, ignore=permanently off, deferred=temporarily off, mastered=retention-refresh only.
 
-current_topics.txt            — per-candidate prioritized CSV of subtopics for ios-interview to draw from. MUST be a subset of topic_catalog.csv. Created by /helper on cold start (seeded from catalog), then owned by /setup-session (rewrites from interview_history.csv). (gitignored — local-only)
+current_topics.txt            — next session's queue: exactly 10 subtopics (or fewer if catalog is too small) that ios-interview will ask one question each. Schema: category,subtopic,priority,notes. Owned entirely by /setup-session — overwritten each run. MUST be a subset of topic_catalog.csv. (gitignored — local-only)
 
 candidate-information/        — candidate profile data (tracked; provided by the candidate, not generated)
   ├── linkedIn.txt            — LinkedIn profile content (the candidate places this file themselves)

@@ -3,7 +3,7 @@ name: helper
 description: >
   Orchestrates the interview prep workflow. Detects the project's current state
   and either helps with cold start (asking the candidate to provide their LinkedIn
-  and CV files, then creating an initial current_topics.txt) or guides the candidate
+  and CV files, then pointing them at /setup-session for the first topic pick) or guides the candidate
   to the next command in the workflow. The helper does NOT write linkedIn.txt or
   cv.txt — the candidate provides those files themselves. Suggests skill invocations —
   does NOT call other skills directly.
@@ -14,7 +14,7 @@ description: >
 # Helper — Workflow Orchestrator
 
 You orchestrate the interview prep workflow. On invocation, detect the project's current state and guide the candidate to the right next step. You either:
-1. **Cold start mode**: gather missing files (LinkedIn, CV) from the candidate and create the initial `current_topics.txt`, OR
+1. **Cold start mode**: confirm profile files (LinkedIn, CV) are present and point the candidate at `/setup-session` to create the first `current_topics.txt`, OR
 2. **Navigation mode**: suggest the appropriate skill command based on where the candidate is in the workflow.
 
 **You never invoke other skills directly.** You only suggest the commands for the candidate to run themselves.
@@ -58,32 +58,14 @@ When the candidate re-invokes the helper and both files are present, Branch 1 is
 
 If `current_topics.txt` does not exist or is empty (regardless of profile state):
 
-### Step 1: Seed from the catalog
+The helper does NOT write `current_topics.txt` itself. `/setup-session` owns that file and knows how to pick the 10 subtopics for the next session — including the cold-start case where there's no history yet (Pool C of `topic_catalog.csv`).
+
 Tell the candidate:
-> "Creating an initial topic list seeded from `topic_catalog.csv`. This is the pool of topics the interviewer draws from in your first session."
+> "Profile files are in place. You don't have a topic queue yet for the next session.
+>
+> Suggested next: run `/setup-session` to pick the 10 subtopics for your first interview. It will draw from `topic_catalog.csv` since there's no history to weight against."
 
-Read `topic_catalog.csv` (project root, tracked). It's a wide CSV with row 1 = topics, row 2 = subtopics, row 3 = flag (`active|pending|ignore|deferred|mastered`).
-
-Write `current_topics.txt` (project root) with one row per `(topic, subtopic)` pair from the catalog, **excluding** any column flagged `ignore` or `deferred`. Schema:
-
-```csv
-category,subtopic,priority,notes
-```
-
-**Default priority assignment** (apply at seed time, derived from the catalog flag):
-- **P1 (High)** for `active` topics under `Security`, `Autonomy`, or `Environments` (role-critical).
-- **P2 (Medium)** for every other `active` or `pending` topic. For `pending`, set `notes` to `"Flagged pending review in topic_catalog.csv"`.
-- **P3 (Low)** for `mastered` topics (retention refresh only).
-- Skip `ignore` and `deferred` entirely — they don't appear in `current_topics.txt`.
-
-No P0 at seed time — that emerges later from `/setup-session` based on session history.
-
-`notes` column starts empty for `active`/`mastered`; pre-filled for `pending` as noted above. `/setup-session` overwrites it as gaps surface in history.
-
-After writing, confirm: "✓ Created current_topics.txt with N topics (X P1, Y P2, Z P3), seeded from topic_catalog.csv. Skipped K ignored/deferred."
-
-### Step 2: Continue
-Move to Branch 3 (everything is ready).
+Stop here and wait. Do not move to Branch 3 — `/setup-session` is the next step.
 
 ## Branch 3: Everything set up, no history yet
 
@@ -93,9 +75,9 @@ Tell the candidate:
 > "✓ Setup complete. You're ready for your first interview.
 >
 > Workflow loop:
-> 1. `/ios-interview` — start a mock interview session
-> 2. `/save-progress` — save the session when it ends
-> 3. `/setup-session` — refresh `current_topics.txt` from history (after a few sessions)
+> 1. `/setup-session` — pick the 10 subtopics for the next interview (re-run any time before `/ios-interview`)
+> 2. `/ios-interview` — start the mock interview session (asks one question per subtopic, 10 total)
+> 3. `/save-progress` — save the session when it ends
 > 4. `/study-plan` — see progress feedback (improvements, gaps, regressions)
 >
 > Suggested next: run `/ios-interview` to start."
@@ -125,9 +107,8 @@ Read the history briefly to count sessions, then tell the candidate:
 
 ## File-creation rules
 
-The helper only writes ONE file: `current_topics.txt` (during Branch 2).
+The helper **does not write any files**. It detects state and suggests commands. `current_topics.txt` is owned by `/setup-session`; profile files are written by the candidate.
 
-- **Use the CSV schema** for current_topics.txt — `category,subtopic,priority,notes` with proper quoting.
 - **Never silently modify files** the candidate didn't ask you to touch.
 
 ## Do not
