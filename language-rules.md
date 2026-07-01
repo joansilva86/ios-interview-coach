@@ -22,7 +22,7 @@ After answering each user message, append a short section at the end listing lan
 - Include this even when below the clarification threshold (1–3 mistakes still get flagged).
 - If the message has zero mistakes, omit the section entirely.
 - Do not flag stylistic preferences or informal-but-correct phrasing — only actual errors and clear awkward phrasing.
-- **Exception**: during `/ios-interview` (when the simulation is active and `logs/current_interview.txt` is being actively written this session), **suppress this verbal section** to preserve the simulation. Rule 4 (CSV logging) still runs silently.
+- **Exception**: during `/interview-run` (when the simulation is active and `logs/current_interview.txt` is being actively written this session), **suppress this verbal section** to preserve the simulation. Rule 4 (CSV logging) still runs silently.
 
 ## Rule 4 — Persistent correction log (CSV)
 
@@ -31,6 +31,6 @@ Append every correction to `logs/misspellings.csv` after each user message.
 - **Scope**: spelling, grammar, AND awkward phrasing (e.g., "end the training mode" → "exit training mode"). Broad scope by design — maximizes the learning value of the log.
 - **Schema**: two columns — `word,count`. Header row is `word,count`. The `word` column holds the **corrected** form (not the misspelled one). For multi-word phrasing fixes, store the corrected phrase as the value (CSV-quote only if it contains commas).
 - **Update logic**: for each correction in the current turn, check if the corrected word/phrase already exists in the CSV. If yes, increment its count by 1. If no, append a new row with count 1.
-- **Active during `/ios-interview`**: yes — the CSV update runs silently regardless of interview mode. Only the verbal flag (Rule 3) is suppressed during the interview.
+- **Active during `/interview-run`**: yes — the CSV update runs silently regardless of interview mode. Only the verbal flag (Rule 3) is suppressed during the interview.
 - **Create if missing**: if `logs/misspellings.csv` doesn't exist yet, create it with the header `word,count` and start appending.
 - If the message has zero corrections, omit the verbal section AND skip the CSV write for this turn.

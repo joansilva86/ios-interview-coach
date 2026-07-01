@@ -13,8 +13,8 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 - **`interview-helper/SKILL.md`** — Orchestrates onboarding and workflow navigation. On cold start, asks the candidate to add their `linkedIn.txt` and `cv.txt` files, then points them at `/interview-setup-session` for the first topic pick. The helper writes NO files. Suggests skill invocations — never calls them directly.
   - Invoked via `/interview-helper` or "where do I start?", "what's next?", "I'm new"
 
-- **`ios-interview/SKILL.md`** — Conducts realistic iOS technical interview simulations. Walks `current_topics.csv` row by row, asking exactly one question per subtopic (10 rows = 10 questions, strict 1:1, no follow-ups). The candidate is the interviewee, Claude asks questions with no mid-interview feedback.
-  - Invoked via `/ios-interview` or "interview me"
+- **`interview-run/SKILL.md`** — Conducts realistic iOS technical interview simulations. Walks `current_topics.csv` row by row, asking exactly one question per subtopic (10 rows = 10 questions, strict 1:1, no follow-ups). The candidate is the interviewee, Claude asks questions with no mid-interview feedback.
+  - Invoked via `/interview-run` or "interview me"
 
 - **`interview-save-progress/SKILL.md`** — Persists the most recent interview session into `logs/interview_history.csv`, then deletes `logs/current_interview.txt`. Read-and-transcribe only: reads `current_interview.txt` and `interview_history.csv` (for column reconciliation) and writes the new session row. Does not read the catalog — trust comes from the upstream chain (`/interview-setup-session` enforces catalog bounds).
   - Invoked via `/interview-save-progress` or "save the session"
@@ -30,14 +30,14 @@ Candidate information lives in `candidate-information/`. Personal session logs l
 
 ## Language Rules
 
-See **[`language-rules.md`](language-rules.md)** for the four rules that govern how Claude handles language in this workspace (English-only replies, clarification threshold, post-reply mistake flagging, and persistent correction logging to `logs/misspellings.csv`). These rules apply to every conversation in this workspace and remain active even during `/ios-interview` (with the verbal flag suppressed to preserve the simulation; the CSV log still updates silently).
+See **[`language-rules.md`](language-rules.md)** for the four rules that govern how Claude handles language in this workspace (English-only replies, clarification threshold, post-reply mistake flagging, and persistent correction logging to `logs/misspellings.csv`). These rules apply to every conversation in this workspace and remain active even during `/interview-run` (with the verbal flag suppressed to preserve the simulation; the CSV log still updates silently).
 
 ## Project Structure
 
 ```
 topic_catalog.csv             — source of truth for what CAN be asked. Wide CSV: row 1 = topics, row 2 = subtopics, row 3 = flag (active|pending|ignore|deferred|mastered). Tracked. Read ONLY by /interview-setup-session; downstream skills trust the chain. Flag semantics: active=in scope, pending=in scope but flagged for review, ignore=permanently off, deferred=temporarily off, mastered=retention-refresh only.
 
-current_topics.csv            — next session's queue: up to 10 subtopics that ios-interview will ask one question each. Schema: category,subtopic. Row order matches interview_history.csv column order (subtopics with history first in their original column order, then never-asked ones in catalog order). Owned by /interview-setup-session and /interview-custom-session — overwritten each run. MUST be a subset of topic_catalog.csv. (gitignored — local-only)
+current_topics.csv            — next session's queue: up to 10 subtopics that interview-run will ask one question each. Schema: category,subtopic. Row order matches interview_history.csv column order (subtopics with history first in their original column order, then never-asked ones in catalog order). Owned by /interview-setup-session and /interview-custom-session — overwritten each run. MUST be a subset of topic_catalog.csv. (gitignored — local-only)
 
 candidate-information/        — candidate profile data (gitignored — local-only; provided by the candidate, not generated)
   ├── linkedIn.txt            — LinkedIn profile content (the candidate places this file themselves)
@@ -49,12 +49,12 @@ logs/                         — personal session logs (gitignored)
   ├── interview_history.csv   — wide CSV: 2 header rows (topic, subtopic) + one row per session; each cell holds an answer-category label (On Point | Could Be Better | Vague | Improvised | Don't Know) or is empty
   └── misspellings.csv        — running log of language corrections (schema: word,count). Owned by the language rules (see language-rules.md). Appended after every user message; counts bump on repeat.
 
-language-rules.md             — workspace-wide language rules: English-only replies, mistake flagging, CSV correction log. Active in every conversation, including /ios-interview.
+language-rules.md             — workspace-wide language rules: English-only replies, mistake flagging, CSV correction log. Active in every conversation, including /interview-run.
 
 interview-helper/                — onboarding + workflow navigation
   └── SKILL.md
 
-ios-interview/                   — interview simulation skill
+interview-run/                   — interview simulation skill
   └── SKILL.md
 
 interview-save-progress/         — saves session data to interview_history.csv
