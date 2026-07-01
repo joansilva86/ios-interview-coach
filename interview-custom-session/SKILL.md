@@ -1,19 +1,19 @@
 ---
-name: custom-session
+name: interview-custom-session
 description: >
-  Manual alternative to /setup-session. Asks the candidate which subtopics they
+  Manual alternative to /interview-setup-session. Asks the candidate which subtopics they
   want to practice (exactly 10, looping until met), matches each entry against topic_catalog.csv —
   with fuzzy matching when the input is approximate — and writes the picked
   subtopics to current_topics.csv as the queue for the next /ios-interview.
   Warns (does NOT block) when a picked subtopic is flagged ignore, deferred, or
   pending in the catalog. Pure file-write skill once the picks are confirmed.
   Use when the candidate says "I want to choose the topics", "let me pick",
-  "manual session", "custom session", or invokes /custom-session.
+  "manual session", "custom session", or invokes /interview-custom-session.
 ---
 
 # Custom Session
 
-You let the candidate hand-pick the subtopics for the next interview. This is the manual escape hatch alongside `/setup-session` (which picks algorithmically from history). The candidate is in full control — you just match their input to catalog names and write the queue.
+You let the candidate hand-pick the subtopics for the next interview. This is the manual escape hatch alongside `/interview-setup-session` (which picks algorithmically from history). The candidate is in full control — you just match their input to catalog names and write the queue.
 
 ## Mandatory inputs
 
@@ -62,7 +62,7 @@ Build a list of confirmed `(topic, subtopic)` pairs.
 - **If confirmed picks < 10**: tell the candidate how many more they need and ask for them. Example:
   > "You have 7 confirmed picks so far: <list>. **3 more needed** to reach 10. What else do you want to practice?"
   Then loop back to step 2 (match the new entries). Keep looping until the count hits 10 (or exceeds it, in which case trim per the first rule).
-- **If the candidate refuses to add more or asks to abort**: do NOT write the file. Tell them: "The skill requires exactly 10 picks. Cancelling without writing `current_topics.csv`. If you'd like a partial pick or algorithmic fill, run `/setup-session` instead."
+- **If the candidate refuses to add more or asks to abort**: do NOT write the file. Tell them: "The skill requires exactly 10 picks. Cancelling without writing `current_topics.csv`. If you'd like a partial pick or algorithmic fill, run `/interview-setup-session` instead."
 
 Do not write `current_topics.csv` until the confirmed pick count is exactly 10.
 
@@ -86,7 +86,7 @@ Replace `current_topics.csv` (project root) entirely. Schema:
 category,subtopic
 ```
 
-**Row order — match `interview_history.csv` column order** (same convention as `/setup-session`):
+**Row order — match `interview_history.csv` column order** (same convention as `/interview-setup-session`):
 
 1. Read `logs/interview_history.csv` (if it exists) to get the existing subtopic column order.
 2. For each confirmed pick, find its position:
@@ -128,4 +128,4 @@ That's it. No analysis, no recommendations.
 - **Never write more than 10 rows** to `current_topics.csv`. And never write fewer than 10 either — the skill loops until the pick count is exactly 10, or cancels without writing.
 - **Never preserve** the old `current_topics.csv` content — replace it entirely.
 - **Never assign priorities** — there's no priority column. File order is the only ordering signal.
-- **Never deliver a verdict, recommendation, or progress analysis** — that's `/study-plan`'s job.
+- **Never deliver a verdict, recommendation, or progress analysis** — that's `/interview-study-plan`'s job.

@@ -1,19 +1,19 @@
 ---
-name: study-plan
+name: interview-study-plan
 description: >
   Reads logs/interview_history.csv and delivers progress feedback about the
   candidate's learning across all sessions — improvements, persistent gaps,
   regressions, and solid retention. Pure analysis skill — does NOT write any
-  files. For topic preparation of the next session, use /setup-session.
+  files. For topic preparation of the next session, use /interview-setup-session.
   Use when the candidate says "give me progress feedback", "how am I doing",
-  "show me my progress", or invokes /study-plan.
+  "show me my progress", or invokes /interview-study-plan.
 ---
 
 # Progress Feedback
 
 You analyze the candidate's cumulative interview history and deliver a structured progress report. This skill is **read-only** — it does not write any files.
 
-For preparing topics for the next interview session, the candidate should use `/setup-session`. This skill only delivers the human-readable analysis.
+For preparing topics for the next interview session, the candidate should use `/interview-setup-session`. This skill only delivers the human-readable analysis.
 
 ## Mandatory inputs
 
@@ -23,11 +23,11 @@ This skill reads **only one file**:
 
 This skill does **not** access any other file. No personal info, no topic list, no current session log.
 
-**If `logs/interview_history.csv` is missing or empty** (header only, no data rows): tell the candidate there's no history to analyze — they should run `/ios-interview` and `/save-progress` first. Then exit.
+**If `logs/interview_history.csv` is missing or empty** (header only, no data rows): tell the candidate there's no history to analyze — they should run `/ios-interview` and `/interview-save-progress` first. Then exit.
 
 ## Reading confidence from cells
 
-Each non-empty cell in `interview_history.csv` is one of exactly five labels (written by `/save-progress`):
+Each non-empty cell in `interview_history.csv` is one of exactly five labels (written by `/interview-save-progress`):
 
 | Cell value | Confidence bucket (internal) |
 |---|---|
@@ -79,7 +79,7 @@ Deliver a structured report. Use this exact format:
 (omit section if nothing is solidly retained)
 
 ---
-For next session topic prep, run /setup-session.
+For next session topic prep, run /interview-setup-session.
 ```
 
 ## Content rules
@@ -98,4 +98,4 @@ For next session topic prep, run /setup-session.
 - **Never deliver a verdict, recommendation, or study task list.** Trend feedback only.
 - **Never run** if `logs/interview_history.csv` is missing or empty (no data rows).
 - **Never invent improvements, regressions, or retention claims** that aren't backed by data in history.
-- **Never rewrite `current_topics.csv`** — that's `/setup-session`'s job.
+- **Never rewrite `current_topics.csv`** — that's `/interview-setup-session`'s job.

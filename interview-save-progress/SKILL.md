@@ -1,5 +1,5 @@
 ---
-name: save-progress
+name: interview-save-progress
 description: >
   Persists the most recent interview session's data into the interview history CSV,
   then clears the working session log. Reads logs/current_interview.txt and
@@ -10,7 +10,7 @@ description: >
   no confidence inference downstream — labels are read directly. Save-only — no
   feedback, no verdict, no recommendations.
   Use when the candidate says "save the progress", "save the session",
-  "save my interview", "log the session", or invokes /save-progress.
+  "save my interview", "log the session", or invokes /interview-save-progress.
 ---
 
 # Save Progress
@@ -30,7 +30,7 @@ This skill reads **only two files**:
 - **`logs/interview_history.csv`** (if it exists) — to determine the next `session_id` and the existing column layout (subtopic columns to extend).
 
 This skill does **NOT** read:
-- `topic_catalog.csv` — the chain of trust handles catalog bounds: `/setup-session` produces a catalog-bounded `current_topics.csv`, `/ios-interview` uses those names verbatim in question headers, so by the time save-progress sees `current_interview.txt` the names are already catalog-aligned. No re-validation here.
+- `topic_catalog.csv` — the chain of trust handles catalog bounds: `/interview-setup-session` produces a catalog-bounded `current_topics.csv`, `/ios-interview` uses those names verbatim in question headers, so by the time save-progress sees `current_interview.txt` the names are already catalog-aligned. No re-validation here.
 - `candidate-information/linkedIn.txt` (no personal information needed)
 - `candidate-information/candidate_stories.md`
 - `current_topics.csv`

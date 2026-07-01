@@ -1,21 +1,21 @@
 ---
-name: setup-session
+name: interview-setup-session
 description: >
   Selects exactly 10 subtopics for the next interview by combining the
   topic_catalog.csv (source of truth, with flags) and logs/interview_history.csv
   (past sessions), then writes them to current_topics.csv as the ordered queue
   ios-interview will walk through. Pure file-write skill — no progress feedback,
   no analysis output, just a brief confirmation. For human-readable progress
-  feedback, use /study-plan.
+  feedback, use /interview-study-plan.
   Use when the candidate says "setup the next session", "prepare topics for the
-  next interview", "pick what to ask next", or invokes /setup-session.
+  next interview", "pick what to ask next", or invokes /interview-setup-session.
 ---
 
 # Setup Session
 
 You select **exactly 10 subtopics** for the next interview session and write them to `current_topics.csv`. `ios-interview` will then ask one question per row, in order, for exactly 10 questions. This skill is **file-write only** — no analysis, no progress feedback, no recommendations beyond a brief confirmation.
 
-For human-readable progress analysis (trends, regressions, retention), the candidate should use `/study-plan`.
+For human-readable progress analysis (trends, regressions, retention), the candidate should use `/interview-study-plan`.
 
 ## Mandatory inputs
 
@@ -30,7 +30,7 @@ This skill does **NOT** access any other file. No personal info, no existing `cu
 
 ## Reading confidence from cells
 
-Each non-empty cell in `interview_history.csv` is one of exactly five labels (written verbatim by `/save-progress`):
+Each non-empty cell in `interview_history.csv` is one of exactly five labels (written verbatim by `/interview-save-progress`):
 
 | Cell value | Confidence bucket (internal) |
 |---|---|
@@ -123,7 +123,7 @@ After writing the file, output ONLY this format:
   New / breadth:     K
   Retention check:   W
 
-For progress feedback, run /study-plan.
+For progress feedback, run /interview-study-plan.
 Then run /ios-interview to start the session.
 ```
 
@@ -133,12 +133,12 @@ If fewer than 10 were picked, replace the first line with:
 ⚠ current_topics.csv updated — only J subtopics available (catalog too restrictive or fully covered)
 ```
 
-That's it. **No analysis, no regression details, no recommendations, no commentary.** If the candidate wants insights about their progress, they invoke `/study-plan`.
+That's it. **No analysis, no regression details, no recommendations, no commentary.** If the candidate wants insights about their progress, they invoke `/interview-study-plan`.
 
 ## Do not
 
 - **Never read** any file other than `topic_catalog.csv` and `logs/interview_history.csv`.
-- **Never deliver progress feedback** — improvements, regressions, retention analysis. Those belong to `/study-plan`.
+- **Never deliver progress feedback** — improvements, regressions, retention analysis. Those belong to `/interview-study-plan`.
 - **Never preserve** the old `current_topics.csv` content — this skill owns that file. Replace, don't merge. Don't ask before overwriting.
 - **Never include subtopics not in `topic_catalog.csv`** — the catalog is the bound.
 - **Never include subtopics flagged `ignore` or `deferred`** — they are off-limits.

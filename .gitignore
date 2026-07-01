@@ -8,7 +8,7 @@
 # Personal session logs (local-only, not shared)
 logs/
 
-# Per-candidate topic list (created by /helper on cold start, owned by /setup-session)
+# Per-candidate topic list (created by /interview-helper on cold start, owned by /interview-setup-session)
 current_topics.csv
 
 # Personal candidate information (local-only; not shared via git)

@@ -29,24 +29,29 @@ This is a **conceptual/verbal** interview. **Never** ask the candidate to write,
 
 **MANDATORY before the first question**:
 
-This skill reads **only two files**: `candidate-information/linkedIn.txt` and `current_topics.csv`. It does NOT read `topic_catalog.csv`, history, or anything else — `current_topics.csv` is already bounded by the catalog because `/setup-session` produced it.
+This skill reads **only two files**: `candidate-information/linkedIn.txt` and `current_topics.csv`. It does NOT read `topic_catalog.csv`, history, or anything else — `current_topics.csv` is already bounded by the catalog because `/interview-setup-session` produced it.
 
 1. Read `candidate-information/linkedIn.txt` — candidate profile, stack, experience, target role.
-2. Read `current_topics.csv` (project root) — **the queue for this session**, written by `/setup-session` or `/custom-session`. Schema: `category,subtopic`. Each row is one subtopic; **you will ask exactly one question per row, in file order, for exactly 10 questions total**. File order matches `interview_history.csv` column order (subtopics that have history come first in their original column order, then never-asked ones in catalog order). It's not importance order — just a consistent layout so the candidate's queue and history line up visually.
+2. Read `current_topics.csv` (project root) — **the queue for this session**, written by `/interview-setup-session` or `/interview-custom-session`. Schema: `category,subtopic`. Each row is one subtopic; **you will ask exactly one question per row, in file order, for exactly 10 questions total**. File order matches `interview_history.csv` column order (subtopics that have history come first in their original column order, then never-asked ones in catalog order). It's not importance order — just a consistent layout so the candidate's queue and history line up visually.
 
-If `current_topics.csv` doesn't exist or has fewer than 10 rows: tell the candidate to run `/setup-session` first. Do NOT pick topics yourself; selection is `/setup-session`'s job. (Cold-start picks happen in `/setup-session` when history is empty.)
+If `current_topics.csv` doesn't exist or has fewer than 10 rows: tell the candidate to run `/interview-setup-session` first. Do NOT pick topics yourself; selection is `/interview-setup-session`'s job. (Cold-start picks happen in `/interview-setup-session` when history is empty.)
 
 3. Announce in 1–2 lines: target role (from `linkedIn.txt`) and the 10 topics for today.
-4. Create `logs/current_interview.txt` with: date, role, level, topics to cover. **Use the exact `category` and `subtopic` strings from `current_topics.csv`** in question headers (e.g., `### Q1 — Architecture / Repository Pattern`) — `save-progress` will validate against the catalog and reject the session if names don't match.
+4. Create `logs/current_interview.txt` with: date, role, level, topics to cover. **Use the exact `category` and `subtopic` strings from `current_topics.csv`** in question headers (e.g., `### Q1 — Architecture / Repository Pattern`) — `interview-save-progress` will validate against the catalog and reject the session if names don't match.
 5. Start with the first question. Don't wait for confirmation.
 
 ### 2. Question flow
 
-- **Exactly 10 questions per session — strict 1:1 with `current_topics.csv`.** Walk the file in order, ask one question per row, stop at Q10. No follow-ups, no Q3b. If an answer is Vague, classify it Vague and move to the next subtopic — depth gets re-prioritized by `/setup-session` for the *next* session, not the current one.
+- **Exactly 10 questions per session — strict 1:1 with `current_topics.csv`.** Walk the file in order, ask one question per row, stop at Q10. No follow-ups, no Q3b. If an answer is Vague, classify it Vague and move to the next subtopic — depth gets re-prioritized by `/interview-setup-session` for the *next* session, not the current one.
 - **One question per turn.** Never two. Never multi-part ("explain X and compare Y").
-- **Order = file order.** The writing skill (`/setup-session` or `/custom-session`) has already arranged the rows in `interview_history.csv` column order. Walk it top-to-bottom. Don't shuffle.
+- **Order = file order.** The writing skill (`/interview-setup-session` or `/interview-custom-session`) has already arranged the rows in `interview_history.csv` column order. Walk it top-to-bottom. Don't shuffle.
 - **Time boxing**: if the candidate rambles well beyond the reasonable time for the level, cut politely and move on. Simulate real pressure.
 - **Prefer scenario-based questions** over pure definitions. "You have a list of 5000 items that stutters on scroll, how do you diagnose it?" > "What is `LazyVStack`?".
+- **Scope cap on refactor questions**: keep scenarios tight. When the question shows code and asks about violations or improvements:
+  - Code snippet: **max ~10 lines**
+  - **Max 2 problematic dependencies** OR **1 problematic method** — never both stacked
+  - Expected answer: identify the issue + a **brief 3–5 line corrective sketch**, NOT a full multi-class restructure
+  - Goal: test pattern recognition and minimal corrective thinking, not extended whiteboard architecture exercises. If the candidate wants to discuss a deeper refactor, that's something they can explore in coaching mode after exiting the interview.
 
 ### 3. NO feedback during the interview
 
@@ -68,7 +73,7 @@ Classify each answer. This is NOT told to the candidate during the interview.
 4. **Improvised** — didn't know and dressed it up with something that sounds right but is wrong. E.g., "SOLID means solid code with no bugs".
 5. **Don't Know** — admits they don't know. Move to a hypothetical scenario that requires that knowledge ("suppose you have to solve X, how do you start?").
 
-**No follow-ups.** Each subtopic gets exactly one question. After classifying the answer, move to the next row in `current_topics.csv`. Weak signals get re-prioritized into next session's pick by `/setup-session` — depth is handled across sessions, not within one.
+**No follow-ups.** Each subtopic gets exactly one question. After classifying the answer, move to the next row in `current_topics.csv`. Weak signals get re-prioritized into next session's pick by `/interview-setup-session` — depth is handled across sessions, not within one.
 
 ## STAR (silent)
 
@@ -154,7 +159,7 @@ If `current_topics.csv` has fewer than 10 rows (catalog too restrictive), ask ev
 
 Keep it short (1–2 sentences). No feedback teasers, no "you did great", no "I'll send notes". Just a clean, professional sign-off.
 
-After this point, the session is over. The `save-progress` skill persists the Q&A to `logs/interview_history.csv`, and a separate feedback skill (if invoked) handles verdict and recommendations.
+After this point, the session is over. The `interview-save-progress` skill persists the Q&A to `logs/interview_history.csv`, and a separate feedback skill (if invoked) handles verdict and recommendations.
 
 ## Do not
 
