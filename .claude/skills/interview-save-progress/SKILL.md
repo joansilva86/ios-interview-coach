@@ -30,7 +30,7 @@ This skill reads **only two files**:
 - **`logs/interview_history.csv`** (if it exists) — to determine the next `session_id` and the existing column layout (subtopic columns to extend).
 
 This skill does **NOT** read:
-- `topic_catalog.csv` — the chain of trust handles catalog bounds: `/interview-setup-session` produces a catalog-bounded `current_topics.csv`, `/ios-interview` uses those names verbatim in question headers, so by the time save-progress sees `current_interview.txt` the names are already catalog-aligned. No re-validation here.
+- `topic_catalog.csv` — the chain of trust handles catalog bounds: `/interview-setup-session` produces a catalog-bounded `current_topics.csv`, `/interview-run` uses those names verbatim in question headers, so by the time save-progress sees `current_interview.txt` the names are already catalog-aligned. No re-validation here.
 - `candidate-information/linkedIn.txt` (no personal information needed)
 - `candidate-information/candidate_stories.md`
 - `current_topics.csv`
@@ -60,7 +60,7 @@ session_date,session_id,Repository Pattern,SwiftUI Navigation,Strategy,some vs a
 - **Cell content = the answer-category label, nothing else.** One of exactly five values: `On Point`, `Could Be Better`, `Vague`, `Improvised`, `Don't Know`. No notes, no explanations, no quoted text. Downstream skills read the label directly — no inference needed.
 - **Empty cell** = subtopic not touched in that session.
 - **One column per (topic, subtopic) pair.** Subtopics with the same name under different topics are different columns.
-- **Since `/ios-interview` is strict 1:1** (one question per subtopic, no follow-ups), each cell maps to exactly one classification. No rollup, no "mixed" cells.
+- **Since `/interview-run` is strict 1:1** (one question per subtopic, no follow-ups), each cell maps to exactly one classification. No rollup, no "mixed" cells.
 
 ## Workflow
 
@@ -69,11 +69,9 @@ session_date,session_id,Repository Pattern,SwiftUI Navigation,Strategy,some vs a
 3. **Determine `session_id`**: count existing data rows in `logs/interview_history.csv` and add 1. If the file doesn't exist, `session_id = 1`.
 4. **Group questions by (topic, subtopic)**: each Q&A pair has a topic and subtopic in its header (e.g., `### Q1 — Architecture / Repository Pattern`). Group across both main and experience Q&A sections.
 5. **Extract the answer-category label per (topic, subtopic)**: each Q&A in `current_interview.txt` already has an `Answer category` field with one of the five values. Take that label verbatim — no summarizing, no adding context. With strict 1:1 (one question per subtopic), each subtopic has exactly one label.
-6. **Reconcile columns with existing file**:
-   - If `logs/interview_history.csv` does NOT exist: write topic header row, subtopic header row, and the new session data row.
-   - If file exists: read the existing topic + subtopic header rows. Identify which (topic, subtopic) pairs from this session are new. Append new columns to BOTH header rows AND to every existing data row (with empty cells). Then append the new session data row.
-7. **Write the new session data row**: first cell = session_date, second cell = session_id, remaining cells = notes for subtopics covered this session, empty for everything else.
-8. **Verify the append succeeded**: confirm the new row is present in `logs/interview_history.csv` before proceeding.
+6. **Write via the `trainer-csv` MCP server**: call its `save_session` tool with `session_date` and the list of `{topic, subtopic, label}` results. The tool computes the session_id, reconciles columns (new (topic, subtopic) pairs are appended to both header rows and every prior data row is padded with empty cells), validates labels against the five allowed values, and refuses duplicate session dates.
+7. **Fallback only if the MCP server is unavailable**: perform the same reconciliation and append manually, following the file format above.
+8. **Verify the write succeeded**: the tool's confirmation (session number, subtopics covered, new columns added) is the verification. On manual fallback, confirm the new row is present in `logs/interview_history.csv` before proceeding.
 9. **Delete `logs/current_interview.txt`**: only after step 8 confirms the data is safely in history. This clears the working session log to make room for the next interview.
 10. **Output confirmation** to the user (see below).
 
@@ -81,15 +79,15 @@ session_date,session_id,Repository Pattern,SwiftUI Navigation,Strategy,some vs a
 
 ## CSV escaping
 
-Standard CSV (RFC 4180):
+Handled by the `save_session` tool. On manual fallback, use standard CSV (RFC 4180):
 - Comma-separated.
 - Double-quote any cell containing commas, quotes, or newlines.
 - Escape internal double-quotes by doubling them (`"` → `""`).
 
 ## Idempotency
 
-Before writing, check if a data row for the current `session_date` already exists in `logs/interview_history.csv`:
-- If yes: ask the user "A session for [date] is already saved. Append anyway, replace that row, or cancel?"
+The `save_session` tool refuses to write if a data row for the current `session_date` already exists (on manual fallback, check before writing):
+- If refused / already exists: ask the user "A session for [date] is already saved. Append anyway, replace that row, or cancel?"
 - Default to **cancel** if the user doesn't respond.
 - Don't silently duplicate.
 

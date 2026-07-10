@@ -2,8 +2,11 @@
 .DS_Store
 * copy*
 
-# Claude Code local settings (machine-specific paths)
-.claude/
+# Claude Code local settings (machine-specific paths) — but track the skills,
+# they are the project's core logic. Note: must be `.claude/*` (not `.claude/`)
+# so the !.claude/skills/ re-include can take effect.
+.claude/*
+!.claude/skills/
 
 # Personal session logs (local-only, not shared)
 logs/

@@ -4,7 +4,7 @@ description: >
   Manual alternative to /interview-setup-session. Asks the candidate which subtopics they
   want to practice (exactly 10, looping until met), matches each entry against topic_catalog.csv —
   with fuzzy matching when the input is approximate — and writes the picked
-  subtopics to current_topics.csv as the queue for the next /ios-interview.
+  subtopics to current_topics.csv as the queue for the next /interview-run.
   Warns (does NOT block) when a picked subtopic is flagged ignore, deferred, or
   pending in the catalog. Pure file-write skill once the picks are confirmed.
   Use when the candidate says "I want to choose the topics", "let me pick",
@@ -80,7 +80,7 @@ Never refuse the pick — the candidate's manual override wins. Just surface the
 
 ### 5. Write `current_topics.csv`
 
-Replace `current_topics.csv` (project root) entirely. Schema:
+Call the `trainer-csv` MCP server's `write_topics` tool with the 10 confirmed picks — it replaces the file entirely, validates every pick against `topic_catalog.csv`, enforces exactly 10 rows, handles row ordering, and reports catalog-flag warnings. Fall back to a manual write (per the rules below) only if the MCP server is unavailable. Schema:
 
 ```csv
 category,subtopic
@@ -114,7 +114,7 @@ Picks (in order):
 [Flag warnings, if any:]
   ⚠ <subtopic>: catalog flag = <flag>
 
-Run /ios-interview when ready.
+Run /interview-run when ready.
 ```
 
 That's it. No analysis, no recommendations.

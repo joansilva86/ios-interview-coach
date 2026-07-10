@@ -4,7 +4,7 @@ description: >
   Selects exactly 10 subtopics for the next interview by combining the
   topic_catalog.csv (source of truth, with flags) and logs/interview_history.csv
   (past sessions), then writes them to current_topics.csv as the ordered queue
-  ios-interview will walk through. Pure file-write skill — no progress feedback,
+  interview-run will walk through. Pure file-write skill — no progress feedback,
   no analysis output, just a brief confirmation. For human-readable progress
   feedback, use /interview-study-plan.
   Use when the candidate says "setup the next session", "prepare topics for the
@@ -13,7 +13,7 @@ description: >
 
 # Setup Session
 
-You select **exactly 10 subtopics** for the next interview session and write them to `current_topics.csv`. `ios-interview` will then ask one question per row, in order, for exactly 10 questions. This skill is **file-write only** — no analysis, no progress feedback, no recommendations beyond a brief confirmation.
+You select **exactly 10 subtopics** for the next interview session and write them to `current_topics.csv`. `interview-run` will then ask one question per row, in order, for exactly 10 questions. This skill is **file-write only** — no analysis, no progress feedback, no recommendations beyond a brief confirmation.
 
 For human-readable progress analysis (trends, regressions, retention), the candidate should use `/interview-study-plan`.
 
@@ -77,7 +77,9 @@ If fewer than 10 subtopics are picked (catalog too small or too restrictive), wr
 
 ## Output (silent file write)
 
-Replace `current_topics.csv` (project root) entirely. **Regenerate from scratch — no warning, no preservation of prior content.**
+Write via the `trainer-csv` MCP server: call its `write_topics` tool with the 10 selected `{category, subtopic}` picks. The tool replaces `current_topics.csv` entirely, validates every pick against `topic_catalog.csv`, enforces exactly 10 rows, and sorts rows into `interview_history.csv` column order. **Regenerate from scratch — no warning, no preservation of prior content.**
+
+Fall back to a manual write (per the rules below) only if the MCP server is unavailable, or if the pools legitimately yielded fewer than 10 picks (the tool requires exactly 10 — a shorter list must be written manually along with the warning in the confirmation).
 
 ### Schema
 
@@ -92,7 +94,7 @@ category,subtopic
 
 No `notes` column. The pools / pick reasons are summarized in the user-facing confirmation only.
 
-### Row order — match `interview_history.csv` column order
+### Row order — match `interview_history.csv` column order (implemented by `write_topics`; apply manually only on fallback)
 
 After selecting the 10 picks via Pools A → B → C → D, **reorder the rows** before writing so they appear in the same order as the corresponding columns in `logs/interview_history.csv`:
 
@@ -101,11 +103,11 @@ After selecting the 10 picks via Pools A → B → C → D, **reorder the rows**
    - If not found (never asked, no history column yet): the pick's position = `<max history column index> + <its column index in topic_catalog.csv>`. This places never-asked picks after history-known ones, in catalog order.
 2. Sort the 10 picks ascending by position. Write them in that order.
 
-This means file order = history-column order, **not** importance order. `/ios-interview` will walk this order top-to-bottom, asking older-introduced subtopics before never-seen ones.
+This means file order = history-column order, **not** importance order. `/interview-run` will walk this order top-to-bottom, asking older-introduced subtopics before never-seen ones.
 
-### Write rules
+### Write rules (enforced by `write_topics`; apply manually only on fallback)
 
-- **Exactly 10 rows** (or fewer if Pools A/B/C/D don't yield 10).
+- **Exactly 10 rows** (or fewer if Pools A/B/C/D don't yield 10 — manual write in that case).
 - **Quote any field** containing commas or double quotes (RFC 4180).
 - **Every row must exist as a column in `topic_catalog.csv`** — never invent.
 - **No duplicates** — each `(category, subtopic)` pair appears at most once.
@@ -124,7 +126,7 @@ After writing the file, output ONLY this format:
   Retention check:   W
 
 For progress feedback, run /interview-study-plan.
-Then run /ios-interview to start the session.
+Then run /interview-run to start the session.
 ```
 
 If fewer than 10 were picked, replace the first line with:

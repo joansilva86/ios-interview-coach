@@ -79,12 +79,12 @@ Tell the candidate:
 > "✓ Setup complete. You're ready for your first interview.
 >
 > Workflow loop:
-> 1. `/interview-setup-session` (algorithmic pick) OR `/interview-custom-session` (manual pick) — populate `current_topics.csv` for the next interview. Re-run any time before `/ios-interview`.
-> 2. `/ios-interview` — start the mock interview session (asks one question per subtopic, 10 total)
+> 1. `/interview-setup-session` (algorithmic pick) OR `/interview-custom-session` (manual pick) — populate `current_topics.csv` for the next interview. Re-run any time before `/interview-run`.
+> 2. `/interview-run` — start the mock interview session (asks one question per subtopic, 10 total)
 > 3. `/interview-save-progress` — save the session when it ends
 > 4. `/interview-study-plan` — see progress feedback (improvements, gaps, regressions)
 >
-> Suggested next: run `/ios-interview` to start."
+> Suggested next: run `/interview-run` to start."
 
 ## Branch 4: Mid-flow — unsaved interview
 
@@ -103,12 +103,12 @@ Read the history briefly to count sessions, then tell the candidate:
 > "You have N saved interview sessions.
 >
 > Pick what's next:
-> - `/ios-interview` — start a new mock interview
+> - `/interview-run` — start a new mock interview
 > - `/interview-setup-session` — algorithmically refresh topics based on your history (recommended after recent saves)
 > - `/interview-custom-session` — hand-pick the subtopics yourself (good when you want to drill specific areas)
 > - `/interview-study-plan` — see progress feedback (trends, gaps, retention)
 >
-> Natural flow after a `/interview-save-progress`: `/interview-setup-session` → `/interview-study-plan` → `/ios-interview`."
+> Natural flow after a `/interview-save-progress`: `/interview-setup-session` → `/interview-study-plan` → `/interview-run`."
 
 ## File-creation rules
 
@@ -124,5 +124,5 @@ The helper **does not write any files**. It detects state and suggests commands.
 - **Never read or copy content** from anywhere to populate linkedIn.txt or cv.txt. The candidate must place those files manually.
 - **Never deliver verdicts, recommendations, or coaching.** That's other skills' jobs.
 - **Never write `interview_history.csv`** — only `interview-save-progress` writes that.
-- **Never write `current_interview.txt`** — only `ios-interview` writes that.
+- **Never write `current_interview.txt`** — only `interview-run` writes that.
 - **Never invent profile content** or generate placeholder text for the missing files.

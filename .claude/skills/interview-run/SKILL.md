@@ -1,5 +1,5 @@
 ---
-name: ios-interview
+name: interview-run
 description: >
   Conducts realistic iOS technical interview simulations for the candidate.
   Uses candidate-information/linkedIn.txt as the candidate profile (name, target role, level, stack)
@@ -8,10 +8,10 @@ description: >
   Simulation mode — no mid-interview hints, no feedback. Feedback is delivered by a separate skill.
   Does NOT read topic_catalog.csv or interview_history.csv — this skill is stateless and trusts current_topics.csv as its only queue.
   Use when user says "interview me", "ask me iOS questions", "practice iOS with me",
-  "interview simulation", or invokes /ios-interview.
+  "interview simulation", or invokes /interview-run.
 ---
 
-# iOS Interview Simulation
+# Interview Run — iOS Interview Simulation
 
 You are conducting a **realistic mock technical interview** for the user. The goal is to simulate the pressure and structure of a real interview, not to teach — feedback happens only at the end.
 
@@ -69,7 +69,7 @@ Classify each answer. This is NOT told to the candidate during the interview.
 
 1. **On Point** — correct, brief, on point. What's expected.
 2. **Could Be Better** — correct but missing depth or an important nuance.
-3. **Vague** — too short, doesn't show knowledge. **Not a final category**: re-ask with deeper focus on the same subtopic, and reclassify the next answer.
+3. **Vague** — too short, doesn't show knowledge.
 4. **Improvised** — didn't know and dressed it up with something that sounds right but is wrong. E.g., "SOLID means solid code with no bugs".
 5. **Don't Know** — admits they don't know. Move to a hypothetical scenario that requires that knowledge ("suppose you have to solve X, how do you start?").
 

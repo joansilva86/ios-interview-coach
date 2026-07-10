@@ -23,7 +23,7 @@ This skill reads **only one file**:
 
 This skill does **not** access any other file. No personal info, no topic list, no current session log.
 
-**If `logs/interview_history.csv` is missing or empty** (header only, no data rows): tell the candidate there's no history to analyze — they should run `/ios-interview` and `/interview-save-progress` first. Then exit.
+**If `logs/interview_history.csv` is missing or empty** (header only, no data rows): tell the candidate there's no history to analyze — they should run `/interview-run` and `/interview-save-progress` first. Then exit.
 
 ## Reading confidence from cells
 
