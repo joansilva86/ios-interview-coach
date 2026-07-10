@@ -47,7 +47,9 @@ candidate-information/        — candidate profile data (gitignored — local-o
 logs/                         — personal session logs (gitignored)
   ├── current_interview.txt   — current/most recent session Q&A
   ├── interview_history.csv   — wide CSV: 2 header rows (topic, subtopic) + one row per session; each cell holds an answer-category label (On Point | Could Be Better | Vague | Improvised | Don't Know) or is empty
-  └── misspellings.csv        — running log of language corrections (schema: word,count). Owned by the language rules (see language-rules.md). Appended after every user message; counts bump on repeat.
+  └── misspellings.csv        — running log of language corrections (schema: word,category,count; category = spelling|grammar|phrasing|unknown). Owned by the language rules (see language-rules.md). Written via the trainer-csv MCP server's tally_corrections tool after every user message; counts bump on repeat.
+
+mcp/                          — trainer-csv MCP server (Python, run via `uv run`). Owns structured CSV writes: tally_corrections (misspellings.csv), save_session (interview_history.csv), write_topics (current_topics.csv). Registered with `claude mcp add`; self-test: `uv run mcp/trainer_csv_server.py --selftest`.
 
 language-rules.md             — workspace-wide language rules: English-only replies, mistake flagging, CSV correction log. Active in every conversation, including /interview-run.
 

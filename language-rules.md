@@ -29,8 +29,9 @@ After answering each user message, append a short section at the end listing lan
 Append every correction to `logs/misspellings.csv` after each user message.
 
 - **Scope**: spelling, grammar, AND awkward phrasing (e.g., "end the training mode" → "exit training mode"). Broad scope by design — maximizes the learning value of the log.
-- **Schema**: two columns — `word,count`. Header row is `word,count`. The `word` column holds the **corrected** form (not the misspelled one). For multi-word phrasing fixes, store the corrected phrase as the value (CSV-quote only if it contains commas).
-- **Update logic**: for each correction in the current turn, check if the corrected word/phrase already exists in the CSV. If yes, increment its count by 1. If no, append a new row with count 1.
+- **Schema**: three columns — `word,category,count`. Header row is `word,category,count`. The `word` column holds the **corrected** form (not the misspelled one); `category` is one of `spelling | grammar | phrasing` (`unknown` on rows migrated from the old two-column schema — upgraded automatically when the word recurs). For multi-word phrasing fixes, store the corrected phrase as the value (CSV-quote only if it contains commas).
+- **How to write**: use the `trainer-csv` MCP server's `tally_corrections` tool (one batched call per user message). It handles the increment-or-append logic, quoting, and legacy-schema migration. Only fall back to direct file writes if the MCP server is unavailable.
+- **Update logic** (implemented by the tool): for each correction in the current turn, check if the corrected word/phrase already exists in the CSV. If yes, increment its count. If no, append a new row.
 - **Active during `/interview-run`**: yes — the CSV update runs silently regardless of interview mode. Only the verbal flag (Rule 3) is suppressed during the interview.
 - **Create if missing**: if `logs/misspellings.csv` doesn't exist yet, create it with the header `word,count` and start appending.
 - If the message has zero corrections, omit the verbal section AND skip the CSV write for this turn.
