@@ -21,7 +21,7 @@ For human-readable progress analysis (trends, regressions, retention), the candi
 
 This skill reads **two files**:
 
-- **`topic_catalog.csv`** (project root, tracked) — source of truth. Wide CSV with 3 rows: topics, subtopics, flag (`active|pending|ignore|deferred|mastered`). Every column is a valid `(topic, subtopic)` pair. Flags filter eligibility.
+- **`topic_catalog.csv`** (project root, tracked) — source of truth. Long CSV, one row per subtopic: `category,subtopic,flag` (`active|pending|ignore|deferred|mastered`). Every data row is a valid `(topic, subtopic)` pair. Flags filter eligibility.
 - **`logs/interview_history.csv`** (optional) — Wide/pivoted CSV with two header rows (topics, then `session_date,session_id,...subtopics`) and one row per past session. Cells contain notes; empty cells mean the subtopic wasn't touched that session.
 
 This skill does **NOT** access any other file. No personal info, no existing `current_topics.csv` (it gets overwritten), no current session log.
@@ -47,7 +47,7 @@ The bucket is internal classification used only to drive the selection algorithm
 
 Pick exactly 10 subtopics by walking these pools in order. Each subtopic enters at most one pool; once placed, it's locked.
 
-**Exclude up front**: any catalog column flagged `ignore` or `deferred`. They are not eligible for any pool.
+**Exclude up front**: any catalog row flagged `ignore` or `deferred`. They are not eligible for any pool.
 
 ### Pool A — Persistent gaps
 Subtopics with history where the most recent 3+ non-empty cells are all `weak`. Sort by most-recent-weak first. Cap at 10. Drop later pools if Pool A fills all 10.
@@ -60,7 +60,7 @@ Subtopics where one of these is true:
 Sort by most-recent-weak first. Take up to (10 − count so far).
 
 ### Pool C — Never-asked catalog subtopics
-Catalog columns with flag in `{active, pending}` AND no non-empty cells in history.
+Catalog rows with flag in `{active, pending}` AND no non-empty cells in history.
 
 Sort by:
 1. Role-critical category first (`Security`, `Autonomy`, `Environments`).
@@ -70,7 +70,7 @@ Sort by:
 Take up to (10 − count so far).
 
 ### Pool D — Retention refresh
-Catalog columns flagged `mastered` that haven't been asked in 3+ sessions (or never asked). Take **at most 1** from this pool, only if there's room and only as the final slot.
+Catalog rows flagged `mastered` that haven't been asked in 3+ sessions (or never asked). Take **at most 1** from this pool, only if there's room and only as the final slot.
 
 ### After all pools
 If fewer than 10 subtopics are picked (catalog too small or too restrictive), write what you have and include an explicit warning in the confirmation message (see Output).
@@ -89,8 +89,8 @@ category,subtopic
 
 | Column | Description |
 |--------|-------------|
-| `category` | Topic from `topic_catalog.csv` row 1, matching the picked column. |
-| `subtopic` | Subtopic from `topic_catalog.csv` row 2, matching the picked column. |
+| `category` | The `category` value of the picked catalog row, verbatim. |
+| `subtopic` | The `subtopic` value of the picked catalog row, verbatim. |
 
 No `notes` column. The pools / pick reasons are summarized in the user-facing confirmation only.
 
@@ -100,7 +100,7 @@ After selecting the 10 picks via Pools A → B → C → D, **reorder the rows**
 
 1. For each pick, look up its `(topic, subtopic)` pair in `interview_history.csv`'s header rows.
    - If found: the pick's position = its column index in history (left-to-right).
-   - If not found (never asked, no history column yet): the pick's position = `<max history column index> + <its column index in topic_catalog.csv>`. This places never-asked picks after history-known ones, in catalog order.
+   - If not found (never asked, no history column yet): the pick's position = `<max history column index> + <its row index in topic_catalog.csv>`. This places never-asked picks after history-known ones, in catalog order.
 2. Sort the 10 picks ascending by position. Write them in that order.
 
 This means file order = history-column order, **not** importance order. `/interview-run` will walk this order top-to-bottom, asking older-introduced subtopics before never-seen ones.
@@ -109,7 +109,7 @@ This means file order = history-column order, **not** importance order. `/interv
 
 - **Exactly 10 rows** (or fewer if Pools A/B/C/D don't yield 10 — manual write in that case).
 - **Quote any field** containing commas or double quotes (RFC 4180).
-- **Every row must exist as a column in `topic_catalog.csv`** — never invent.
+- **Every row must exist as a row in `topic_catalog.csv`** — never invent.
 - **No duplicates** — each `(category, subtopic)` pair appears at most once.
 - If fewer than 10 are available, write fewer (do not pad with anything).
 

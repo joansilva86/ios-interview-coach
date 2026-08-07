@@ -1,3 +1,85 @@
-Theory,Theory,Theory,Theory,Theory,Theory,Swift Language,Swift Language,Swift Language,Swift Language,Swift Language,Swift Language,Swift Language,Swift Language,Memory & ARC,Memory & ARC,Memory & ARC,Swift Concurrency,Swift Concurrency,Swift Concurrency,Swift Concurrency,Swift Concurrency,Swift Concurrency,Swift Concurrency,Swift Concurrency,Frameworks,Frameworks,Frameworks,Frameworks,Frameworks,Frameworks,Frameworks,Frameworks,Architecture,Architecture,Architecture,Architecture,Architecture,Architecture,Architecture,Testing,Testing,Testing,Testing,Testing,Testing,DevOps,DevOps,DevOps,DevOps,Security,Security,Security,Security,Security,Persistence,Persistence,Persistence,Networking,Networking,Networking,Networking,System Design,System Design,System Design,System Design,Soft Skills,Soft Skills,Soft Skills,Soft Skills,Trade-offs,Trade-offs,Anti-patterns,Anti-patterns,Real Experience,Real Experience,Real Experience,What If,What If,What If,Autonomy,Autonomy,Environments,Environments
-SOLID Principles,Design Patterns (Creational),Design Patterns (Behavioral),TDD Fundamentals,Code Smells and Refactoring,Concurrency vs Parallelism,Value vs Reference Types,Generics and Type Constraints,Protocols and Associated Types,some vs any,Property Wrappers,Error Handling Signature,Closures and Capture Lists,Codable and JSON Decoding,Weak vs Unowned,Retain Cycles (Closure),Retain Cycles (Delegate),async/await Fundamentals,Task and Detached Tasks,async let vs TaskGroup,Structured Cancellation,Continuations,Actors and Data Isolation,@MainActor and Thread Safety,Sendable and Data Races,SwiftUI State Management,View Identity and ForEach,SwiftUI Performance and Diffing,@Observable Macro,NavigationStack and Routing,ViewBuilder and Result Builders,UIViewRepresentable Bridging,Combine Publishers and Subscribers,MVVM Pattern,MVI Pattern,Clean Architecture,Coordinator and Router Pattern,Repository Pattern,Service Pattern,Dependency Injection,XCTest Framework,Swift Testing Framework,Mocking and Test Doubles,Async Tests,Snapshot Testing,What NOT to Test,fastlane Automation,Code Signing and Provisioning,TestFlight Distribution,Build Configurations (xcconfig),Keychain and Secure Storage,OAuth2 and PKCE,JWT Validation,Token Storage and Refresh,Biometric Authentication,Core Data Fundamentals,SwiftData,UserDefaults Limits,URLSession and HTTP,Retry Logic and Backoff,Caching Strategies,Token Refresh and 401 Handling,Paginated Feed,Offline-First Architecture,Push Notifications and Deep Linking,Real-time Sync,Code Review Process,Mentoring Juniors,Tech Debt Prioritization,Estimation and Planning,UIKit vs SwiftUI,Core Data vs SwiftData,Massive View Controller,Singleton Abuse,Most Complex Feature,Architecture Decisions and Trade-offs,Debugging Production Bug,Production Crash Diagnosis,Slow Endpoint Diagnosis,Memory Leak Detection,Ambiguous Start,Edge Cases Definition,Environment Separation (dev/staging/prod),xcconfig per Environment
-active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active,active
+category,subtopic,flag
+Theory,SOLID Principles,active
+Theory,Design Patterns (Creational),active
+Theory,Design Patterns (Behavioral),active
+Theory,TDD Fundamentals,active
+Theory,Code Smells and Refactoring,active
+Theory,Concurrency vs Parallelism,active
+Swift Language,Value vs Reference Types,active
+Swift Language,Generics and Type Constraints,active
+Swift Language,Protocols and Associated Types,active
+Swift Language,some vs any,active
+Swift Language,Property Wrappers,active
+Swift Language,Error Handling Signature,active
+Swift Language,Closures and Capture Lists,active
+Swift Language,Codable and JSON Decoding,active
+Memory & ARC,Weak vs Unowned,active
+Memory & ARC,Retain Cycles (Closure),active
+Memory & ARC,Retain Cycles (Delegate),active
+Swift Concurrency,async/await Fundamentals,active
+Swift Concurrency,Task and Detached Tasks,active
+Swift Concurrency,async let vs TaskGroup,active
+Swift Concurrency,Structured Cancellation,active
+Swift Concurrency,Continuations,active
+Swift Concurrency,Actors and Data Isolation,active
+Swift Concurrency,@MainActor and Thread Safety,active
+Swift Concurrency,Sendable and Data Races,active
+Frameworks,SwiftUI State Management,active
+Frameworks,View Identity and ForEach,active
+Frameworks,SwiftUI Performance and Diffing,active
+Frameworks,@Observable Macro,active
+Frameworks,NavigationStack and Routing,active
+Frameworks,ViewBuilder and Result Builders,active
+Frameworks,UIViewRepresentable Bridging,active
+Frameworks,Combine Publishers and Subscribers,active
+Architecture,MVVM Pattern,active
+Architecture,MVI Pattern,active
+Architecture,Clean Architecture,active
+Architecture,Coordinator and Router Pattern,active
+Architecture,Repository Pattern,active
+Architecture,Service Pattern,active
+Architecture,Dependency Injection,active
+Testing,XCTest Framework,active
+Testing,Swift Testing Framework,active
+Testing,Mocking and Test Doubles,active
+Testing,Async Tests,active
+Testing,Snapshot Testing,active
+Testing,What NOT to Test,active
+DevOps,fastlane Automation,active
+DevOps,Code Signing and Provisioning,active
+DevOps,TestFlight Distribution,active
+DevOps,Build Configurations (xcconfig),active
+Security,Keychain and Secure Storage,active
+Security,OAuth2 and PKCE,active
+Security,JWT Validation,active
+Security,Token Storage and Refresh,active
+Security,Biometric Authentication,active
+Persistence,Core Data Fundamentals,active
+Persistence,SwiftData,active
+Persistence,UserDefaults Limits,active
+Networking,URLSession and HTTP,active
+Networking,Retry Logic and Backoff,active
+Networking,Caching Strategies,active
+Networking,Token Refresh and 401 Handling,active
+System Design,Paginated Feed,active
+System Design,Offline-First Architecture,active
+System Design,Push Notifications and Deep Linking,active
+System Design,Real-time Sync,active
+Soft Skills,Code Review Process,active
+Soft Skills,Mentoring Juniors,active
+Soft Skills,Tech Debt Prioritization,active
+Soft Skills,Estimation and Planning,active
+Trade-offs,UIKit vs SwiftUI,active
+Trade-offs,Core Data vs SwiftData,active
+Anti-patterns,Massive View Controller,active
+Anti-patterns,Singleton Abuse,active
+Real Experience,Most Complex Feature,active
+Real Experience,Architecture Decisions and Trade-offs,active
+Real Experience,Debugging Production Bug,active
+What If,Production Crash Diagnosis,active
+What If,Slow Endpoint Diagnosis,active
+What If,Memory Leak Detection,active
+Autonomy,Ambiguous Start,active
+Autonomy,Edge Cases Definition,active
+Environments,Environment Separation (dev/staging/prod),active
+Environments,xcconfig per Environment,active

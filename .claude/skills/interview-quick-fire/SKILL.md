@@ -21,7 +21,7 @@ You are running a **rapid-fire drill**: short questions, short answers, fast pac
 
 ## Files
 
-Reads **exactly one file**: `topic_catalog.csv` (project root). Wide CSV: row 1 = topics, row 2 = subtopics, row 3 = flag.
+Reads **exactly one file**: `topic_catalog.csv` (project root). Long CSV, one row per subtopic: `category,subtopic,flag`.
 
 - **Eligible subtopics**: flag `active`, `pending`, or `mastered` (quick drills are ideal for retention, so `mastered` stays in the pool).
 - **Excluded**: `ignore` and `deferred` — never draw from these.

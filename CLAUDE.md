@@ -33,7 +33,7 @@ See **[`language-rules.md`](language-rules.md)** for the four rules that govern 
 These files are shared between skills, so their schemas and ownership are defined here (not in any single SKILL.md):
 
 ```
-topic_catalog.csv             — source of truth for what CAN be asked. Wide CSV: row 1 = topics, row 2 = subtopics, row 3 = flag (active|pending|ignore|deferred|mastered). Tracked. Flag semantics: active=in scope, pending=in scope but flagged for review, ignore=permanently off, deferred=temporarily off, mastered=retention-refresh only.
+topic_catalog.csv             — source of truth for what CAN be asked. Long CSV, one row per subtopic. Schema: category,subtopic,flag (flag: active|pending|ignore|deferred|mastered). Tracked. Flag semantics: active=in scope, pending=in scope but flagged for review, ignore=permanently off, deferred=temporarily off, mastered=retention-refresh only.
 
 current_topics.csv            — next session's queue: up to 10 subtopics, one question each. Schema: category,subtopic. Row order matches interview_history.csv column order. Owned by /interview-setup-session and /interview-custom-session — overwritten each run. MUST be a subset of topic_catalog.csv. (gitignored — local-only)
 

@@ -19,8 +19,8 @@ You let the candidate hand-pick the subtopics for the next interview. This is th
 
 This skill reads **two files**:
 
-- **`topic_catalog.csv`** (project root, tracked) — source of truth. Wide CSV with 3 rows: topics, subtopics, flag (`active|pending|ignore|deferred|mastered`). Used to validate the user's picks and surface fuzzy matches when their input is approximate.
-- **`logs/interview_history.csv`** (optional) — used only to determine the column order for the output. The history's labels (cell values) are ignored — manual picking doesn't use history for ranking. If the file doesn't exist, fall back to `topic_catalog.csv` column order for every pick.
+- **`topic_catalog.csv`** (project root, tracked) — source of truth. Long CSV, one row per subtopic: `category,subtopic,flag` (`active|pending|ignore|deferred|mastered`). Used to validate the user's picks and surface fuzzy matches when their input is approximate.
+- **`logs/interview_history.csv`** (optional) — used only to determine the column order for the output. The history's labels (cell values) are ignored — manual picking doesn't use history for ranking. If the file doesn't exist, fall back to `topic_catalog.csv` row order for every pick.
 
 This skill does **NOT** read `candidate-information/` or any other file. Manual picking ignores history for *what* to ask — but uses it for *what order* to write the queue, so `current_topics.csv` lines up visually with `interview_history.csv`.
 
@@ -36,7 +36,7 @@ Wait for the candidate's response.
 
 ### 2. Match each entry against `topic_catalog.csv`
 
-Read the catalog. The set of valid `(topic, subtopic)` pairs = `{(row1[i], row2[i]) for each column i}`.
+Read the catalog. The set of valid `(topic, subtopic)` pairs = the `(category, subtopic)` of each data row.
 
 For each entry the candidate sent:
 
@@ -68,7 +68,7 @@ Do not write `current_topics.csv` until the confirmed pick count is exactly 10.
 
 ### 4. Flag warnings (don't block)
 
-For each confirmed pick, look up its flag in `topic_catalog.csv` row 3:
+For each confirmed pick, look up its flag in the `flag` column of `topic_catalog.csv`:
 
 - `active` → no comment.
 - `mastered` → no comment.
@@ -91,7 +91,7 @@ category,subtopic
 1. Read `logs/interview_history.csv` (if it exists) to get the existing subtopic column order.
 2. For each confirmed pick, find its position:
    - If the subtopic has a column in history: position = column index in history (left-to-right).
-   - If it's never been asked: position = `<max history column index> + <its column index in topic_catalog.csv>`. Never-asked picks land after history-known ones, ordered by catalog position.
+   - If it's never been asked: position = `<max history column index> + <its row index in topic_catalog.csv>`. Never-asked picks land after history-known ones, ordered by catalog position.
 3. Sort the confirmed picks ascending by position and write them in that order.
 
 The candidate's input order does NOT determine row order — the file always reflects history-column order so it lines up with `interview_history.csv` for easy side-by-side reading.

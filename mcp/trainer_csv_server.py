@@ -156,8 +156,8 @@ def save_session(session_date: str, results: list[SubtopicResult]) -> str:
 # ------------------------------------------------------------ write_topics
 
 class TopicPick(BaseModel):
-    category: str = Field(description="Topic name exactly as in topic_catalog.csv row 1")
-    subtopic: str = Field(description="Subtopic name exactly as in topic_catalog.csv row 2")
+    category: str = Field(description="Topic name exactly as in topic_catalog.csv category column")
+    subtopic: str = Field(description="Subtopic name exactly as in topic_catalog.csv subtopic column")
 
 
 def _write_topics(picks: list[TopicPick], topics_path: Path,
@@ -166,9 +166,11 @@ def _write_topics(picks: list[TopicPick], topics_path: Path,
         raise ValueError(f"Exactly 10 picks required, got {len(picks)}.")
 
     catalog = _read_csv(catalog_path)
-    if len(catalog) < 3:
-        raise ValueError(f"Catalog at {catalog_path} is missing or malformed.")
-    cat_pairs = {(catalog[0][i], catalog[1][i]): i for i in range(len(catalog[0]))}
+    if len(catalog) < 2 or catalog[0] != ["category", "subtopic", "flag"]:
+        raise ValueError(f"Catalog at {catalog_path} is missing or malformed "
+                         "(expected header: category,subtopic,flag).")
+    entries = catalog[1:]
+    cat_pairs = {(r[0], r[1]): i for i, r in enumerate(entries)}
 
     unknown = [(p.category, p.subtopic) for p in picks
                if (p.category, p.subtopic) not in cat_pairs]
@@ -196,7 +198,7 @@ def _write_topics(picks: list[TopicPick], topics_path: Path,
 
     warnings = []
     for p in picks:
-        flag = catalog[2][cat_pairs[(p.category, p.subtopic)]]
+        flag = entries[cat_pairs[(p.category, p.subtopic)]][2]
         if flag in ("pending", "deferred", "ignore"):
             warnings.append(f"  ! {p.subtopic}: catalog flag = {flag}")
     out = "current_topics.csv written - 10 subtopics queued:\n" + "\n".join(
@@ -251,9 +253,10 @@ def _selftest() -> None:
             pass
 
         # write_topics: catalog validation, exactly-10, history ordering
-        _write_csv(cat, [["Theory", "Theory", "Security", "Security"] + [f"T{i}" for i in range(8)],
-                         ["A", "B", "C", "D"] + [f"S{i}" for i in range(8)],
-                         ["active", "deferred", "active", "active"] + ["active"] * 8])
+        _write_csv(cat, [["category", "subtopic", "flag"],
+                         ["Theory", "A", "active"], ["Theory", "B", "deferred"],
+                         ["Security", "C", "active"], ["Security", "D", "active"]] +
+                        [[f"T{i}", f"S{i}", "active"] for i in range(8)])
         picks = [TopicPick(category="Theory", subtopic="B"),
                  TopicPick(category="Security", subtopic="C")] + [
                  TopicPick(category=f"T{i}", subtopic=f"S{i}") for i in range(8)]
