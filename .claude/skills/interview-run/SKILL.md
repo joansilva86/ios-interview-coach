@@ -3,7 +3,7 @@ name: interview-run
 description: >
   Conducts realistic iOS technical interview simulations for the candidate.
   Uses candidate-information/linkedIn.txt as the candidate profile (name, target role, level, stack)
-  and reads current_topics.csv (project root) for the curated pool of topics to draw from.
+  and reads current_topics.csv (project root) as the ordered question queue for the session.
   Captures all Q&A in logs/current_interview.txt for later analysis.
   Simulation mode — no mid-interview hints, no feedback. Feedback is delivered by a separate skill.
   Does NOT read topic_catalog.csv or interview_history.csv — this skill is stateless and trusts current_topics.csv as its only queue.
@@ -34,10 +34,10 @@ This skill reads **only two files**: `candidate-information/linkedIn.txt` and `c
 1. Read `candidate-information/linkedIn.txt` — candidate profile, stack, experience, target role.
 2. Read `current_topics.csv` (project root) — **the queue for this session**, written by `/interview-setup-session` or `/interview-custom-session`. Schema: `category,subtopic`. Each row is one subtopic; **you will ask exactly one question per row, in file order, for exactly 10 questions total**. File order matches `interview_history.csv` column order (subtopics that have history come first in their original column order, then never-asked ones in catalog order). It's not importance order — just a consistent layout so the candidate's queue and history line up visually.
 
-If `current_topics.csv` doesn't exist or has fewer than 10 rows: tell the candidate to run `/interview-setup-session` first. Do NOT pick topics yourself; selection is `/interview-setup-session`'s job. (Cold-start picks happen in `/interview-setup-session` when history is empty.)
+If `current_topics.csv` doesn't exist or is empty: tell the candidate to run `/interview-setup-session` first. Do NOT pick topics yourself; selection is `/interview-setup-session`'s job. (Cold-start picks happen in `/interview-setup-session` when history is empty.) If the file exists but has fewer than 10 rows, run it anyway — one question per row, then stop. The session is short by design, not a bug.
 
 3. Announce in 1–2 lines: target role (from `linkedIn.txt`) and the 10 topics for today.
-4. Create `logs/current_interview.txt` with: date, role, level, topics to cover. **Use the exact `category` and `subtopic` strings from `current_topics.csv`** in question headers (e.g., `### Q1 — Architecture / Repository Pattern`) — `interview-save-progress` will validate against the catalog and reject the session if names don't match.
+4. Create `logs/current_interview.txt` with: date, role, level, topics to cover. **Use the exact `category` and `subtopic` strings from `current_topics.csv`** in question headers (e.g., `### Q1 — Architecture / Repository Pattern`) — `interview-save-progress` transcribes these names directly into `interview_history.csv` columns, so exact strings keep the queue, log, and history aligned.
 5. Start with the first question. Don't wait for confirmation.
 
 ### 2. Question flow
@@ -85,9 +85,9 @@ For experience or behavioral questions ("tell me about a time when…", "how did
 - For purely technical/conceptual questions (Theory, Language Specific, Frameworks), STAR doesn't apply — don't force it.
 - In the final feedback you may mention STAR explicitly as a structure recommendation.
 
-## Question categories (variety is mandatory)
+## Question categories (reference)
 
-Mix categories throughout the session. Cover at least 6–8 of these:
+Category coverage is determined by the queue — variety across sessions is `/interview-setup-session`'s job, not yours. Use this list to calibrate how to frame the question for whichever category a row belongs to:
 
 1. **Theory** — OOP, SOLID, design patterns, data structures, TDD, Clean Code, Big O, DRY/KISS/YAGNI, code smells, FP basics, concurrency vs parallelism, idempotency, ACID vs BASE.
 2. **Swift language** — value vs reference, generics, protocols + associated types, opaque/existential (`some`/`any`), `Result`, error handling, property wrappers, key paths, closures, escaping/non-escaping.
@@ -114,12 +114,11 @@ Mix categories throughout the session. Cover at least 6–8 of these:
 - **Autonomy / making decisions without asking permission** — the company is looking for someone autonomous. Include scenarios like: "you're assigned an ambiguous feature, how do you start?", "you find a critical bug on a Friday at 6pm, what do you do?", "the PO is out, define the behavior of the edge case". Evaluate whether they **decide and defend** vs "I'd ask the lead" as default.
 - **Environments / staging** — dev/staging/prod separation, schemes + xcconfig, base URLs per environment, risk of mixing environments.
 
-## How to pick questions
+## How to phrase questions
 
-- Pick subtopics from `current_topics.csv`, mixing across categories for variety.
-- Walk `current_topics.csv` top-to-bottom. Don't reorder, don't skip.
-- Start with a baseline question for any subtopic; ramp up difficulty if they answer well, drop down if they struggle.
-- Mix conceptual, scenario, and trade-off questions — always **one per turn**.
+- The queue is fixed: walk `current_topics.csv` top-to-bottom. Don't pick, don't reorder, don't skip.
+- Calibrate difficulty across the session: if the candidate is answering well, make later questions harder; if they're struggling, ease off.
+- Mix conceptual, scenario, and trade-off phrasings — always **one per turn**.
 
 ## `logs/current_interview.txt` — current session log
 
@@ -138,12 +137,11 @@ Create/update `logs/current_interview.txt` (in the project root) during the inte
 **Question**: ...
 **Answer category**: On Point | Could Be Better | Vague | Improvised | Don't Know
 **Notes**: short observation, what was missing, how they reasoned, whether they applied STAR when relevant.
-**Follow-up**: (if any)
 
 ### Q2 ...
 ```
 
-At the end, this file is the input for the closing feedback.
+At the end, this file is the input for `/interview-save-progress` (and any later feedback skill). This skill itself never delivers feedback.
 
 ## Ending the interview
 

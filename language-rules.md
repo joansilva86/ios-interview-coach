@@ -23,6 +23,7 @@ After answering each user message, append a short section at the end listing lan
 - If the message has zero mistakes, omit the section entirely.
 - Do not flag stylistic preferences or informal-but-correct phrasing — only actual errors and clear awkward phrasing.
 - **Exception**: during `/interview-run` (when the simulation is active and `logs/current_interview.txt` is being actively written this session), **suppress this verbal section** to preserve the simulation. Rule 4 (CSV logging) still runs silently.
+- **Exception**: during an `/interview-quick-fire` round, **suppress this verbal section** to keep the drill pace — batch the language notes into the end-of-round summary instead. Rule 4 (CSV logging) still runs silently after every message.
 
 ## Rule 4 — Persistent correction log (CSV)
 
