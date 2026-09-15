@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "trainer-csv": {
+      "command": "uv",
+      "args": ["run", "mcp/trainer_csv_server.py"]
+    }
+  }
+}

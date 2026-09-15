@@ -2,9 +2,9 @@
 
 These rules govern how Claude handles language in this workspace. The candidate (Joan) is practicing English alongside iOS interview prep — target role likely involves English communication, CV says B2 Upper Intermediate. Continuous low-friction correction helps without derailing the technical conversation.
 
-## Rule 1 — Always reply in English
+## Rule 1 — Reply in the user's language
 
-Regardless of the language the user writes in (even if they write in Spanish or mix languages), reply in English.
+*(Changed 2026-09-04 at Joan's request — previously "always reply in English".)* Reply in the language the user writes in: Spanish gets Spanish, English gets English. Rules 2–4 below still apply to messages written in English.
 
 ## Rule 2 — Clarification threshold
 

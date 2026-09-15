@@ -1,5 +1,4 @@
 category,subtopic,flag
-Theory,SOLID Principles,active
 Theory,Design Patterns (Creational),active
 Theory,Design Patterns (Behavioral),active
 Theory,TDD Fundamentals,active
@@ -83,3 +82,9 @@ Autonomy,Ambiguous Start,active
 Autonomy,Edge Cases Definition,active
 Environments,Environment Separation (dev/staging/prod),active
 Environments,xcconfig per Environment,active
+SOLID,What SOLID Is and Why It Matters,active
+SOLID,Single Responsibility Principle,active
+SOLID,Open/Closed Principle,active
+SOLID,Liskov Substitution Principle,active
+SOLID,Interface Segregation Principle,active
+SOLID,Dependency Inversion Principle,active

@@ -18,7 +18,7 @@ Skills live in `.claude/skills/<name>/SKILL.md`. **Each SKILL.md is the single s
 | `interview-setup-session` | Algorithmically picks the next 10 subtopics → writes `current_topics.csv` | `/interview-setup-session`, "pick what to ask next" |
 | `interview-custom-session` | Candidate picks the 10 subtopics manually → writes `current_topics.csv` | `/interview-custom-session`, "I want to choose the topics" |
 | `interview-run` | Full interview simulation over `current_topics.csv`; logs to `logs/current_interview.txt` | `/interview-run`, "interview me" |
-| `interview-quick-fire` | Rapid-fire drill of short questions; read-only, no persistence | `/interview-quick-fire`, "drill me", "quick fire" |
+| `interview-quick-fire` | Rapid-fire drill of short questions; saves each round to `interview_history.csv` via the MCP | `/interview-quick-fire`, "drill me", "quick fire" |
 | `interview-save-progress` | Persists the last session into `logs/interview_history.csv` | `/interview-save-progress`, "save the session" |
 | `interview-study-plan` | Progress feedback from history; read-only | `/interview-study-plan`, "how am I doing?" |
 
@@ -26,7 +26,7 @@ Typical loop: `setup-session` (or `custom-session`) → `run` → `save-progress
 
 ## Language Rules
 
-See **[`language-rules.md`](language-rules.md)** for the four rules that govern how Claude handles language in this workspace (English-only replies, clarification threshold, post-reply mistake flagging, and persistent correction logging to `logs/misspellings.csv`). These rules apply to every conversation in this workspace, including during skills (see the exceptions listed in that file).
+See **[`language-rules.md`](language-rules.md)** for the four rules that govern how Claude handles language in this workspace (reply in the user's language, clarification threshold, post-reply mistake flagging, and persistent correction logging to `logs/misspellings.csv`). These rules apply to every conversation in this workspace, including during skills (see the exceptions listed in that file).
 
 ## Shared File Contracts
 
@@ -46,6 +46,8 @@ logs/                         — personal session logs (gitignored)
   ├── current_interview.txt   — current/most recent session Q&A. Written by /interview-run, consumed then deleted by /interview-save-progress.
   ├── interview_history.csv   — wide CSV: 2 header rows (topic, subtopic) + one row per session; each cell holds an answer-category label (On Point | Could Be Better | Vague | Improvised | Don't Know) or is empty
   └── misspellings.csv        — running log of language corrections (schema: word,category,count). Owned by the language rules (see language-rules.md).
+
+qa_bank.csv                   — question/answer bank for study and for sharing (e.g. with an English teacher). Schema: category,question,answer,on_point_date (date of the most recent On Point answer in practice, empty if none yet). category uses the exact strings from topic_catalog.csv. Answers are polished spoken-English model answers. Tracked.
 
 mcp/                          — trainer-csv MCP server (Python, run via `uv run`). Owns structured CSV writes: tally_corrections (misspellings.csv), save_session (interview_history.csv), write_topics (current_topics.csv). Registered with `claude mcp add`; self-test: `uv run mcp/trainer_csv_server.py --selftest`.
 
