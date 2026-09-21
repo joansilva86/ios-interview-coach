@@ -59,3 +59,7 @@ language-rules.md             — workspace-wide language rules (see above).
 ```
 
 Trust chain: `topic_catalog.csv` is read by the topic-selection skills (and `/interview-quick-fire`); downstream skills trust `current_topics.csv` without re-reading the catalog.
+
+## Git
+
+The remote uses SSH via the `github-personal` host alias defined in `~/.ssh/config` (key: `~/.ssh/id_ed25519_github`, account `joansilva86`). Do NOT switch the remote to HTTPS: the osxkeychain credential helper is not reachable from Claude Code's sandbox, so HTTPS pushes fail with `could not read Username`. On a new machine, recreate the alias and register the key before pushing.
