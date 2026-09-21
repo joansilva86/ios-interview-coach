@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["mcp"]
+# dependencies = ["mcp<2"]
 # ///
 """Trainer CSV MCP server.
 
@@ -19,9 +19,9 @@ import csv
 import sys
 import tempfile
 from pathlib import Path
-from typing import Literal
+from typing import Literal, get_args
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from mcp.server.fastmcp import FastMCP
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -30,7 +30,8 @@ HISTORY = ROOT / "logs" / "interview_history.csv"
 CATALOG = ROOT / "topic_catalog.csv"
 TOPICS = ROOT / "current_topics.csv"
 
-VALID_LABELS = ["On Point", "Could Be Better", "Vague", "Improvised", "Don't Know"]
+Label = Literal["On Point", "Could Be Better", "Vague", "Improvised", "Don't Know"]
+VALID_LABELS = list(get_args(Label))
 
 mcp = FastMCP("trainer-csv")
 
@@ -102,14 +103,10 @@ def tally_corrections(corrections: list[Correction]) -> str:
 class SubtopicResult(BaseModel):
     topic: str = Field(description="Topic exactly as used in the session log, e.g. 'Theory'")
     subtopic: str = Field(description="Subtopic exactly as used in the session log")
-    label: str = Field(description="One of: " + " | ".join(VALID_LABELS))
+    label: Label = Field(description="Answer-category label for this subtopic")
 
 
 def _save_session(session_date: str, results: list[SubtopicResult], path: Path) -> str:
-    bad = [r.label for r in results if r.label not in VALID_LABELS]
-    if bad:
-        raise ValueError(f"Invalid label(s) {bad}. Allowed: {VALID_LABELS}")
-
     rows = _read_csv(path)
     if not rows:
         rows = [["session_date", "session_id"], ["", ""]]
@@ -250,6 +247,11 @@ def _selftest() -> None:
                 topic="Theory", subtopic="SOLID Principles", label="Vague")], hist)
             raise AssertionError("duplicate date accepted")
         except ValueError:
+            pass
+        try:
+            SubtopicResult(topic="Theory", subtopic="SOLID Principles", label="Meh")
+            raise AssertionError("invalid label accepted")
+        except ValidationError:
             pass
 
         # write_topics: catalog validation, exactly-10, history ordering

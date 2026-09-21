@@ -47,9 +47,11 @@ logs/                         — personal session logs (gitignored)
   ├── interview_history.csv   — wide CSV: 2 header rows (topic, subtopic) + one row per session; each cell holds an answer-category label (On Point | Could Be Better | Vague | Improvised | Don't Know) or is empty
   └── misspellings.csv        — running log of language corrections (schema: word,category,count). Owned by the language rules (see language-rules.md).
 
-qa_bank.csv                   — question/answer bank for study and for sharing (e.g. with an English teacher). Schema: category,question,answer,on_point_date (date of the most recent On Point answer in practice, empty if none yet). category uses the exact strings from topic_catalog.csv. Answers are polished spoken-English model answers. Tracked.
+qa_bank.csv                   — question/answer bank for study and for sharing (e.g. with an English teacher). Schema: category,question,answer,on_point_date (date of the most recent On Point answer in practice, empty if none yet). category uses the exact strings from topic_catalog.csv. Answers are polished spoken-English model answers. Tracked. Structured writes go through the trainer-qa MCP.
 
-mcp/                          — trainer-csv MCP server (Python, run via `uv run`). Owns structured CSV writes: tally_corrections (misspellings.csv), save_session (interview_history.csv), write_topics (current_topics.csv). Registered with `claude mcp add`; self-test: `uv run mcp/trainer_csv_server.py --selftest`.
+mcp/                          — MCP servers (Python, run via `uv run`, registered in .mcp.json).
+  ├── trainer_csv_server.py   — trainer-csv MCP. Owns structured CSV writes to the session files: tally_corrections (misspellings.csv), save_session (interview_history.csv), write_topics (current_topics.csv). Self-test: `uv run mcp/trainer_csv_server.py --selftest`.
+  └── trainer_qa_server.py    — trainer-qa MCP. Owns structured writes to qa_bank.csv: mark_on_point (stamps on_point_date), add_qa (appends a new Q&A pair).
 
 language-rules.md             — workspace-wide language rules (see above).
 
