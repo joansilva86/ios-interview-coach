@@ -4,6 +4,7 @@ enum ToolName: String {
     case ping
     case herramientaMagica
     case markOnPoint
+    case addQa
 }
 
 @main
@@ -22,7 +23,8 @@ struct TrainerQAServer {
             .init(tools: [
                 PingTool.definition,
                 HerramientaMagicaTool.definition,
-                MarkOnPointTool.definition
+                MarkOnPointTool.definition,
+                AddQATool.definition
             ])
         }
 
@@ -31,6 +33,7 @@ struct TrainerQAServer {
             case .ping: return PingTool.call()
             case .herramientaMagica: return HerramientaMagicaTool.call()
             case .markOnPoint: return try await MarkOnPointTool.call(arguments: params.arguments)
+            case .addQa: return try await AddQATool.call(arguments: params.arguments)
             case nil:
                 return .init(content: [.text(text: "Unknown tool: \(params.name)", annotations: nil, _meta: nil)], isError: true)
             }

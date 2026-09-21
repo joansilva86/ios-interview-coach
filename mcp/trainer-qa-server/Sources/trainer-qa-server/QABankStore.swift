@@ -32,8 +32,12 @@ struct QABankStore {
     }
 
     static func write(_ rows: [[String]]) throws {
-        let content = rows.map { row in row.map(escapeField).joined(separator: ",") }
-            .joined(separator: "\n") + "\n"
+        let content = rows.enumerated().map { rowIndex, row in
+            row.enumerated().map { columnIndex, field in
+                let isQuestionOrAnswer = rowIndex > 0 && (columnIndex == 1 || columnIndex == 2)
+                return isQuestionOrAnswer && !field.isEmpty ? forceQuote(field) : escapeField(field)
+            }.joined(separator: ",")
+        }.joined(separator: "\n") + "\n"
         let tmpURL = fileURL.deletingLastPathComponent()
             .appendingPathComponent(".qa_bank.csv.\(UUID().uuidString).tmp")
         try content.write(to: tmpURL, atomically: false, encoding: .utf8)
@@ -51,6 +55,10 @@ struct QABankStore {
         }
         throw QABankError.questionNotFound(question)
     }
+}
+
+private func forceQuote(_ field: String) -> String {
+    "\"" + field.replacingOccurrences(of: "\"", with: "\"\"") + "\""
 }
 
 private func escapeField(_ field: String) -> String {
