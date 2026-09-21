@@ -1,12 +1,8 @@
 {
   "mcpServers": {
-    "trainer-csv": {
-      "command": "uv",
-      "args": ["run", "mcp/trainer_csv_server.py"]
-    },
-    "trainer-qa": {
-      "command": "uv",
-      "args": ["run", "mcp/trainer_qa_server.py"]
+    "trainer-qa-swift": {
+      "command": "mcp/trainer-qa-server/.build/debug/trainer-qa-server",
+      "args": []
     }
   }
 }
