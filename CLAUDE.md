@@ -19,6 +19,7 @@ Skills live in `.claude/skills/<name>/SKILL.md`. **Each SKILL.md is the single s
 | `interview-custom-session` | Candidate picks the 10 subtopics manually → writes `current_topics.csv` | `/interview-custom-session`, "I want to choose the topics" |
 | `interview-run` | Full interview simulation over `current_topics.csv`; logs to `logs/current_interview.txt` | `/interview-run`, "interview me" |
 | `interview-quick-fire` | Rapid-fire drill of short questions; saves each round to `interview_history.csv` via the MCP | `/interview-quick-fire`, "drill me", "quick fire" |
+| `interview-qa-review` | Question-by-question review against `qa_bank.csv` via the trainer-qa MCP; content + English feedback | `/interview-qa-review`, "quiz me from the qa bank", "review my answers" |
 | `interview-save-progress` | Persists the last session into `logs/interview_history.csv` | `/interview-save-progress`, "save the session" |
 | `interview-study-plan` | Progress feedback from history; read-only | `/interview-study-plan`, "how am I doing?" |
 
