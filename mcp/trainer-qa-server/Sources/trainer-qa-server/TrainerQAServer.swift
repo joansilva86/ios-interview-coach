@@ -7,6 +7,7 @@ enum ToolName: String {
     case addQa
     case pickQuestion
     case clearSession
+    case giveFeedback
 }
 
 @main
@@ -28,7 +29,8 @@ struct TrainerQAServer {
                 MarkOnPointTool.definition,
                 AddQATool.definition,
                 PickQuestionTool.definition,
-                ClearSessionTool.definition
+                ClearSessionTool.definition,
+                GiveFeedbackTool.definition
             ])
         }
 
@@ -40,6 +42,7 @@ struct TrainerQAServer {
             case .addQa: return try await AddQATool.call(arguments: params.arguments)
             case .pickQuestion: return try await PickQuestionTool.call()
             case .clearSession: return try await ClearSessionTool.call()
+            case .giveFeedback: return try await GiveFeedbackTool.call()
             case nil:
                 return .init(content: [.text(text: "Unknown tool: \(params.name)", annotations: nil, _meta: nil)], isError: true)
             }
