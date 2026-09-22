@@ -1,18 +1,18 @@
 category,question,answer,on_point_date,asked_flag
-SOLID,"What is SOLID?","It is a set of five design principles that help us create more maintainable and scalable software.",2026-08-10,
-SOLID,"Why does SOLID matter?","Because most of the cost of software is in maintenance: code that follows SOLID tends to have fewer cascading effects when requirements change.",2026-08-09,
-SOLID,"Single Responsibility","A class should have one and only one reason to change, and a reason to change means an actor.",2026-08-10,
-SOLID,"Open/Closed","Classes should be open for extension but closed for modification — we should be able to add new behavior by adding new code, not by modifying existing code.",2026-08-10,
+SOLID,"What is SOLID?","It is a set of five design principles that help us create more maintainable and scalable software.",2026-08-10,1
+SOLID,"Why does SOLID matter?","Because most of the cost of software is in maintenance: code that follows SOLID tends to have fewer cascading effects when requirements change.",2026-08-09,1
+SOLID,"Single Responsibility","A class should have one and only one reason to change, and a reason to change means an actor.",2026-08-10,1
+SOLID,"Open/Closed","Classes should be open for extension but closed for modification — we should be able to add new behavior by adding new code, not by modifying existing code.",2026-08-10,1
 SOLID,"Liskov Substitution","Different implementations of the same protocol should be replaceable without breaking the app. It is not just about matching the signature — it is about the commitment each implementation makes about how it behaves.",2026-08-12,
-SOLID,"Interface Segregation","Clients should not be forced to rely on functions they don't need.",2026-08-10,
-SOLID,"Dependency Inversion","High-level modules should always rely on abstractions, never on concrete implementations.",2026-08-09,
+SOLID,"Interface Segregation","Clients should not be forced to rely on functions they don't need.",2026-08-10,1
+SOLID,"Dependency Inversion","High-level modules should always rely on abstractions, never on concrete implementations.",2026-08-09,1
 SOLID,"How do you detect an SRP violation in a real view model?","I look at its reasons to change. A practical signal is the test setup: if I have to mock unrelated services just to test one behavior, the class is doing too much.",2026-08-24,
-Memory & ARC,"ARC (Automatic Reference Counting)","It is the Swift way of managing memory for reference types: when the reference count reaches zero, the memory is released.",2026-08-09,
+Memory & ARC,"ARC (Automatic Reference Counting)","It is the Swift way of managing memory for reference types: when the reference count reaches zero, the memory is released.",2026-08-09,1
 Memory & ARC,"deinit","It is a function that runs automatically just before a class instance is deallocated, when its reference count reaches zero. It is the place to clean up — invalidate timers, remove observers, close resources.",2026-08-12,
-Memory & ARC,"Retain cycle","A retain cycle is when two objects hold strong references to each other, so their reference counts never reach zero and the memory is never released.",2026-08-09,
+Memory & ARC,"Retain cycle","A retain cycle is when two objects hold strong references to each other, so their reference counts never reach zero and the memory is never released.",2026-08-09,1
 Memory & ARC,"[weak self]","It prevents a retain cycle when a closure captures self. The closure keeps a weak reference, so the retain count doesn't increase — and self becomes an optional that turns nil once the object is deallocated.",2026-08-14,
 Memory & ARC,"Weak vs unowned","Both are non-owning references used to break retain cycles. The difference is that weak is an optional and becomes nil when the object is deallocated, while unowned assumes the object is still alive and crashes if it is not.",2026-09-01,
-Memory & ARC,"Stack vs heap","The stack holds values whose size and lifetime are known by the compiler. The heap, on the other hand, is for reference types, whose allocation occurs at runtime.",2026-08-09,
+Memory & ARC,"Stack vs heap","The stack holds values whose size and lifetime are known by the compiler. The heap, on the other hand, is for reference types, whose allocation occurs at runtime.",2026-08-09,1
 Swift Language,"Copy-on-write","Copy-on-write is the optimization for value-type collections. In theory a value type is copied each time it is passed; to improve that, standard collections like Array don't copy the value unless one function modifies its own copy.",2026-08-17,
 Swift Language,"Value vs reference type","A value type is copied when it is assigned or passed, so each variable has its own data. A reference type is a pointer to its value: when it is assigned, both variables point to the same instance.",2026-08-12,
 Swift Language,"Class vs struct","Structs are value types, so each copy is independent. Classes are reference types, so copies point to the same instance.",2026-08-14,
@@ -23,14 +23,14 @@ Swift Language,"Type alias","typealias gives another name to an existing type �
 Swift Language,"Codable","Codable is a type alias for Encodable and Decodable: it lets a type be converted to and from formats like JSON.",2026-08-12,
 Swift Language,"var vs let","var declares a mutable variable and let declares a constant.",2026-08-12,
 Swift Language,"What happens with let in a class instance?","If I declare a class instance as let, that just freezes the reference, not the object. I cannot point it to a different object, but I can still mutate its properties.",2026-09-13,
-Swift Language,"What happens with let in a struct?","With a struct, let makes the whole value immutable: I cannot reassign it, and I cannot change any of its properties.",2026-08-09,
+Swift Language,"What happens with let in a struct?","With a struct, let makes the whole value immutable: I cannot reassign it, and I cannot change any of its properties.",2026-08-09,1
 Swift Language,"What is the difference between var and let inside a struct?","Properties marked let can never change after init. Properties marked var can change — but only if the instance itself is declared with var. If the instance is a let, the whole value is frozen: even its var properties cannot be modified.",2026-09-01,
 Swift Language,"What is type inference?","It means the compiler figures out the type from the assigned value, so I don't have to write it explicitly.",2026-09-11,
 Swift Language,"What is a tuple?","It is a value type that groups multiple values into a single compound value — commonly used to return more than one value from a function.",2026-09-03,
 Swift Language,"What are generics and why use them?","Generics let me write a function or type once and have it work with any type. Instead of duplicating the same logic for each type, I write it against a placeholder type — like <T>.",,
 Swift Language,"What is an associated type?",,,
 Swift Language,"What is a primary associated type (PAT)?",,,
-Swift Language,"some","some is an opaque type: one concrete type that the compiler knows, just hidden from the caller, so everything is resolved at compile time.",2026-08-09,
+Swift Language,"some","some is an opaque type: one concrete type that the compiler knows, just hidden from the caller, so everything is resolved at compile time.",2026-08-09,1
 Swift Language,"any","any is an existential: a box that can hold any conforming type at runtime.",2026-08-13,
 Swift Concurrency,"When to use actors","I use an actor when I need to share mutable state across concurrency contexts. It protects that state by serializing access — only one task can touch it at a time.",2026-08-12,
 Swift Concurrency,"Task vs Task.detached","Task runs in the same context as the code that creates it: if you create it on the main actor, it stays on the main actor, and it keeps the same priority. Task.detached ignores all of that and starts clean, outside any actor.",2026-08-13,
