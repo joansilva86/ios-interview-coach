@@ -40,7 +40,7 @@ struct AddQATool {
                 return errorResult(
                     "Question already in qa_bank.csv: \(question). Edit the existing row instead of adding a duplicate.")
             }
-            rows.append([category, question, answer, ""])
+            rows.append([category, question, answer, "", ""])
             try QABankStore.write(rows)
             let message = "Added to qa_bank.csv under \(category) (\(rows.count - 1) entries total)."
             return .init(content: [.text(text: message, annotations: nil, _meta: nil)], isError: false)

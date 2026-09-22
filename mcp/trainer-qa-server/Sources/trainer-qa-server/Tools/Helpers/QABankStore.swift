@@ -15,7 +15,7 @@ enum QABankError: Error, CustomStringConvertible {
 }
 
 struct QABankStore {
-    static let header = ["category", "question", "answer", "on_point_date"]
+    static let header = ["category", "question", "answer", "on_point_date", "asked_flag"]
     static let fileURL = URL(fileURLWithPath: "qa_bank.csv")
 
     static func read() throws -> [[String]] {
