@@ -20,6 +20,7 @@ struct MarkOnPointTool {
         ])
     )
 
+    @QABankActor
     static func call(arguments: [String: Value]?) async throws -> CallTool.Result {
         guard let question = arguments?["question"]?.stringValue, !question.isEmpty else {
             return errorResult("Missing required argument: question")

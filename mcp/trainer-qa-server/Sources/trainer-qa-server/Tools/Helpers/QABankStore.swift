@@ -1,5 +1,10 @@
 import Foundation
 
+@globalActor
+actor QABankActor {
+    static let shared = QABankActor()
+}
+
 enum QABankError: Error, CustomStringConvertible {
     case malformedFile(String)
     case questionNotFound(String)
@@ -18,6 +23,7 @@ struct QABankStore {
     static let header = ["category", "question", "answer", "on_point_date", "asked_flag"]
     static let fileURL = URL(fileURLWithPath: "qa_bank.csv")
 
+    @QABankActor
     static func read() throws -> [[String]] {
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             return [header]
@@ -31,6 +37,7 @@ struct QABankStore {
         return rows
     }
 
+    @QABankActor
     static func write(_ rows: [[String]]) throws {
         let content = rows.enumerated().map { rowIndex, row in
             row.enumerated().map { columnIndex, field in
@@ -44,6 +51,7 @@ struct QABankStore {
         _ = try FileManager.default.replaceItemAt(fileURL, withItemAt: tmpURL)
     }
 
+    @QABankActor
     static func findQuestionIndex(_ rows: [[String]], question: String) throws -> Int {
         let dataRows = rows.dropFirst()
         if let index = dataRows.firstIndex(where: { $0[1] == question }) {

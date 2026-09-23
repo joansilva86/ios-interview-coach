@@ -10,6 +10,7 @@ struct ClearSessionTool {
         ])
     )
 
+    @QABankActor
     static func call() async throws -> CallTool.Result {
         do {
             var rows = try QABankStore.read()

@@ -24,6 +24,7 @@ struct AddQATool {
         ])
     )
 
+    @QABankActor
     static func call(arguments: [String: Value]?) async throws -> CallTool.Result {
         guard let category = arguments?["category"]?.stringValue, !category.isEmpty else {
             return errorResult("Missing required argument: category")

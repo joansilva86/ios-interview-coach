@@ -11,6 +11,7 @@ struct GiveFeedbackTool {
         ])
     )
 
+    @QABankActor
     static func call() async throws -> CallTool.Result {
         do {
             let rows = try QABankStore.read()
